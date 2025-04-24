@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Formulario</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style>
+            body{
+                color: saddlebrown;
+                margin: 0;
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            div {
+                width: 25rem;
+                height: 25rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                border: saddlebrown solid 1px;
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <h1>Formulario</h1>
+            <form action="login.jsp" method="post">
+                <label for="nom">Nombre:</label>
+                <br />
+                <input type="text" id="nom" name="nom" />
+                <br />
+                <br />
+                <label for="pwd">Contraseña:</label>
+                <br />
+                <input type="password" id="pwd" name="pwd" />
+                <br />
+                <br />
+                <input type="submit" value="Enviar" />
+            </form>
+        </div>
+    </body>
+</html>

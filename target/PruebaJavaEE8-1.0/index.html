@@ -7,39 +7,86 @@
             body{
                 color: saddlebrown;
                 margin: 0;
-                width: 100vw;
-                height: 100vh;
                 display: flex;
-                align-items: center;
                 justify-content: center;
             }
-            div {
-                width: 25rem;
-                height: 25rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
+            
+            div{
+                width: fit-content;
+            }
+            fieldset {
+                border: none;
+            }
+            .container {
+                display:block;
+                margin: 5vh 0;
+                padding: 5vh;
+                width: 90vw;
+                height: 100%;
                 border: saddlebrown solid 1px;
                 border-radius: 5px;
+            }
+            .inputs {
+                padding: 1rem;
+                height: 45vh;
+                display: flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                row-gap: 1rem;
             }
         </style>
     </head>
     <body>
-        <div>
-            <h1>Formulario</h1>
+        <div class="container">
+            <h1>Ingresar producto.</h1>
             <form action="login.jsp" method="post">
-                <label for="nom">Nombre:</label>
-                <br />
-                <input type="text" id="nom" name="nom" />
-                <br />
-                <br />
-                <label for="pwd">Contraseña:</label>
-                <br />
-                <input type="password" id="pwd" name="pwd" />
-                <br />
-                <br />
-                <input type="submit" value="Enviar" />
+                <fieldset class="inputs">
+                    <div>
+                        <label for="a_prod">Nombre del producto:</label>
+                        <br />
+                        <input type="text" id="a_prod" name="a_prod" />
+                    </div>
+                    <div>
+                        <label for="a_cant">Cantidad:</label>
+                        <br />
+                        <input type="number" id="a_cant" name="a_cant" />
+                    </div>
+                    <div>
+                        <label for="a_precio">Precio:</label>
+                        <br />
+                        <input type="number" id="a_precio" name="a_precio" step="0.01" />
+                    </div>
+                    <div>
+                        <label for="a_desc">Descripción del producto:</label>
+                        <br />
+                        <textarea name="a_desc" id="a_desc" rows="10" cols="100"></textarea> 
+                    </div>
+                    <div>
+                        <input type="radio" id="e_permanente" name="a_tipo" value="Permanente">
+                        <label for="e_permanente">Permanente</label>
+                        <input type="radio" id="e_especial" name="a_tipo" value="Especial">
+                        <label for="e_especial">Especial</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="a_disp" name="a_disp" value=on>
+                        <label for="a_disp">El producto está disponible.</label>
+                    </div>
+                    <div>
+                        <label for="a_categoria">Categoría del producto:</label>
+                        <br />
+                        <select id="a_categoria" name="a_categoria">
+                            <option value=null>Seleccione una opción.</option>
+                            <option value="Oficina">Artículo de oficina.</option>
+                            <option value="Belleza">Belleza.</option>
+                            <option value="Maquillaje">Maquillaje.</option>
+                            <option value="Miscelaneo">Misceláneo.</option>
+                        </select>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <input type="submit" value="Ingresar" />
+                    <input type="reset" value="Resetear" />
+                </fieldset>
             </form>
         </div>
     </body>

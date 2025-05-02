@@ -6,6 +6,12 @@
         <title>Vendedor</title>
     </head>
     <body>
+        <div class="uk-flex-top" id="vacio" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">Campo vacío. <br /> Alguno de los campos está vacío. Por favor, vuelva a intentarlo.</div>
+        </div>
+        <div class="uk-flex-top" id="usuario-invalido" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">Usuario inválido. <br /> El usuario o la contraseña indicados son erróneos. Por favor, vuelva a intentarlo.</div>
+        </div>
 <%! 
     //SCRIPLET -> funje como clase para evitar crear una.
     
@@ -27,35 +33,37 @@
     //Validar no vacíos
     if(usu.equals("") || contra.equals("")){
 %>
-
-    <h1>Campo vacío.</h1>
-    <p>Alguno de los campos está vacío. Por favor, vuelva a intentarlo.</p>
-    <button onclick="location.href='index.html'">Regresar al formulario</button>
-
+<script>   
+    $(function(){ 
+        UIkit.modal('#vacio').show();
+    });	
+</script> 
 <%
     } else {
         //validar usuario
         boolean exito = validaUsu(usu,contra);
         if(exito){
 %>
-
-    <button onclick="location.href='index.html'">Cerrar sesión.</button>
-    <h1>Bienvenido <%= usu %></h1>
-    <button onclick="location.href='producto.html'">Ingresar producto.</button>
+    <div class="uk-container uk-flex uk-flex-between">
+        <h1>Bienvenido <%= usu %></h1>
+        <div class="uk-flex uk-flex-column">
+            <a class="uk-button uk-button-primary" href="javascript:void(0);" onclick="js_FS003();">Cerrar sesión</a>
+            <a class="uk-button uk-button-default" href="javascript:void(0);" onclick="js_FS002();">Ingresar producto</a>
+        </div>
+    </div>
+    <hr />
 
 <%
         } else {
 %>
-
-    <h1>Usuario inválido.</h1>
-    <p>El usuario o la contraseña indicados son erróneos. Por favor, vuelva a intentarlo.</p>
-    <button onclick="location.href='index.html'">Regresar al formulario</button>
-    
+<script>   
+    $(function(){ 
+        UIkit.modal('#usuario-invalido').show();
+    });	
+</script> 
 <%
         }
     }
-
-    
 %>
         
     </body>

@@ -1,46 +1,95 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!-- para que el coprocesador del navegador interprete solo las etiquetas html y lo demas como texto plano -->
 <html>
     <head>
         <title>Formulario</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <style>
-            body {
-                color: saddlebrown;
-                width: 100vw;
-                height: 100vh;
-                margin: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            div{
-                width: 25rem;
-                height: 25rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
-                border: saddlebrown solid 1px;
-                border-radius: 5px;
-            }
-        </style>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- para volver responsiva la pagina -->
+        <script src="js/jquery-3.7.1.min.js"></script>
+        <link rel="stylesheet" href="css/uikit.min.css" />
+        <script src="js/uikit.min.js"></script>
+        <script src="js/uikit-icons.min.js"></script>
+
     </head>
     <body>
-        <div>
-            <h1>Formulario.</h1>
-            <form action='panelVendedor.jsp' method='post'>
-                <label for='nom'>Nombre:</label>
-                <br />
-                <input type='text' id='nom' name='nom'/>
-                <br />
-                <br />
-                <label for='pwd'>Contraseña:</label>
-                <br />
-                <input type='password' id='pwd' name='pwd' />
-                <br />
-                <br />
-                <input type='submit' value='Enviar'  />
-            </form>
+        <script>
+            function js_FS000(){
+                $('input').each(function() {
+                    $(this).val('');
+                });
+                $('textarea').each(function() {
+                    $(this).val('');
+                });
+                $('select').each(function() {
+                    $(this).val('');
+                });
+                $('input[type="checkbox"], input[type="radio"]').prop('checked', false);
+            }
+            function js_FS001(){    
+                var v_01 = $("#nom").val(),
+                    v_02 = $("#pwd").val();
+                $.post("panelVendedor.jsp",         //pagina a la que se le envia los datos y de la que se recibe una respuesta
+                        {nom: v_01, pwd: v_02},     //datos a enviar
+                        (data)=>{                   //funcion  
+                            $("#r_f001").empty().html(data);
+                            $("#r_f002").empty();
+                        });
+                js_FS000();
+            }
+            function js_FS002(){
+                $.post("producto.html",{},(data)=>{
+                    $("#r_f002").empty().html(data);
+                });
+            }
+            function js_FS003(){
+                $("#r_f001").empty();
+                $("#r_f002").empty();
+                $("#r_f003").empty();
+            }
+            function js_FS004(){
+                $("#r_f002").empty();
+                $("#r_f003").empty();
+            }
+            function js_FS005(){
+                var v_01 = $('[name="prod"]').val(),
+                    v_02 = $('[name="cant"]').val(),
+                    v_03 = $('[name="precio"]').val(),
+                    v_04 = $('[name="desc"]').val(),
+                    v_05 = $('input[type="radio"]:checked').val(),
+                    v_06 = $('input[type="checkbox"]:checked').val(),
+                    v_07 = $('[name="categoria"]').val();
+                    
+                console.log('disp: ' + v_06);
+                $.post("panelProductos.jsp",         //pagina a la que se le envia los datos y de la que se recibe una respuesta
+                        {prod: v_01, cant: v_02, precio: v_03, desc: v_04, tipo: v_05, disp: v_06, categoria: v_07},     //datos a enviar
+                        (data)=>{                   //funcion  
+                            $("#r_f003").empty().html(data);
+                            $("#r_f002").empty();
+                        });
+                js_FS000();
+            }
+        </script>    
+        
+        <div class="uk-container"><!-- uk-height-viewport -->
+            <div class="uk-divider"></div>
+            <div class="uk-container uk-container-xsmall uk-flex uk-flex-between uk-margin-remove-left">
+                <span class="uk-text-success uk-text-large">Ingresar</span>
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: user"></span>
+                    <input id='nom' name='nom' class="uk-input" type="text" placeholder="Nombre" aria-label="Input">
+                </div>
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                    <input id='pwd' name='pwd' class="uk-input" type="password" placeholder="Password" aria-label="Input">
+                </div>
+                <a class="uk-button uk-button-default" href="javascript:void(0);" onclick="js_FS001();">Enviar</a>
+            </div>
+            <hr />
+            <div id="r_f001"></div>
+            <div id="r_f002"></div>
+            <div id="r_f003"></div>
+            
         </div>
+        
     </body>
 </html>

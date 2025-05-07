@@ -9384,6 +9384,10 @@ iframe[data-uk-cover] {
   .uk-margin-remove-right\@s {
     margin-right: 0 !important;
   }
+  /*Ana Pau*/
+  .uk-margin-remove\@s {
+      margin: 0 !important;
+  }
 }
 /* Tablet landscape and bigger */
 @media (min-width: 960px) {

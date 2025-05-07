@@ -1,21 +1,30 @@
 <!DOCTYPE html><!-- para que el coprocesador del navegador interprete solo las etiquetas html y lo demas como texto plano -->
-<html>
+<html class="uk-background-secondary uk-light">
     <head>
         <title>Formulario</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         
         <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- para volver responsiva la pagina -->
         <script src="js/jquery-3.7.1.min.js"></script>
-        <link rel="stylesheet" href="css/uikit.min.css" />
+        <link rel="stylesheet" href="css/uikit.css" />
         <script src="js/uikit.min.js"></script>
         <script src="js/uikit-icons.min.js"></script>
 
     </head>
     <body>
         <script>
+            var prod = 0;
+            js_FS007();
             function js_FS000(){
                 $('input').each(function() {
-                    $(this).val('');
+                    if(!$(this).is('input[type="hidden"]')){
+                        $(this).val('');
+                    }
+                    if($(this).is('input[type="checkbox"], input[type="radio"]')){
+                        if(!$(this).hasClass("tabla")){
+                            $(this).prop('checked', false);
+                        }
+                    }
                 });
                 $('textarea').each(function() {
                     $(this).val('');
@@ -23,32 +32,32 @@
                 $('select').each(function() {
                     $(this).val('');
                 });
-                $('input[type="checkbox"], input[type="radio"]').prop('checked', false);
             }
-            function js_FS001(){    
+            function js_FS002() {
+                $.post("producto.html",{},(data)=>{
+                    $("#r_f002").empty().html(data);
+                    UIkit.modal('#r_f002').show();
+                });
+            }
+            function js_FS003(){
+                $("#r_f001").empty();
+                $("#r_f003").empty();
+                $("#fondo").show();
+            }
+            function js_FS004(){
+                UIkit.modal('#r_f002').hide();
+            }
+            function js_FS001(){  
+                prod = 0;
                 var v_01 = $("#nom").val(),
                     v_02 = $("#pwd").val();
                 $.post("panelVendedor.jsp",         //pagina a la que se le envia los datos y de la que se recibe una respuesta
                         {nom: v_01, pwd: v_02},     //datos a enviar
                         (data)=>{                   //funcion  
                             $("#r_f001").empty().html(data);
-                            $("#r_f002").empty();
                         });
                 js_FS000();
-            }
-            function js_FS002(){
-                $.post("producto.html",{},(data)=>{
-                    $("#r_f002").empty().html(data);
-                });
-            }
-            function js_FS003(){
-                $("#r_f001").empty();
-                $("#r_f002").empty();
-                $("#r_f003").empty();
-            }
-            function js_FS004(){
-                $("#r_f002").empty();
-                $("#r_f003").empty();
+                js_FS003();
             }
             function js_FS005(){
                 var v_01 = $('[name="prod"]').val(),
@@ -56,25 +65,39 @@
                     v_03 = $('[name="precio"]').val(),
                     v_04 = $('[name="desc"]').val(),
                     v_05 = $('input[type="radio"]:checked').val(),
-                    v_06 = $('input[type="checkbox"]:checked').val(),
+                    v_06,
                     v_07 = $('[name="categoria"]').val();
+                    v_08 = prod;
                     
-                console.log('disp: ' + v_06);
-                $.post("panelProductos.jsp",         //pagina a la que se le envia los datos y de la que se recibe una respuesta
-                        {prod: v_01, cant: v_02, precio: v_03, desc: v_04, tipo: v_05, disp: v_06, categoria: v_07},     //datos a enviar
-                        (data)=>{                   //funcion  
-                            $("#r_f003").empty().html(data);
-                            $("#r_f002").empty();
+                    if($('[name="disp"]').is(':checked')){
+                        v_06 = '1';
+                    }else{
+                        v_06 = '0';
+                    }
+                
+                $.post("panelProductos.jsp",                        //pagina a la que se le envia los datos y de la que se recibe una respuesta
+                        {prod: v_01, cant: v_02, 
+                            precio: v_03, desc: v_04, 
+                            tipo: v_05, disp: v_06, 
+                            categoria: v_07, productos: v_08},      //datos a enviar
+                        (data)=>{                                   //recibir respuesta
+                            UIkit.modal('#r_f002').hide();
+                            if(prod <= 0){
+                                $("#r_f003").empty().html(data);
+                            } else {
+                                $("tbody").append(data);
+                            }
+                            prod = $("#productos").val();
                         });
                 js_FS000();
             }
         </script>    
-        
-        <div class="uk-container"><!-- uk-height-viewport -->
+        <!-- Contenido de la página -->
+        <div>
             <div class="uk-divider"></div>
-            <div class="uk-container uk-container-xsmall uk-flex uk-flex-between uk-margin-remove-left">
-                <span class="uk-text-success uk-text-large">Ingresar</span>
-                <div class="uk-inline">
+            <div class="uk-container uk-container-xsmall uk-flex uk-flex-column uk-flex-wrap-stretch uk-flex-between@s uk-margin-remove-left@s uk-margin-remove-right@s uk-flex-row@s">
+                <span class="uk-text-success uk-margin-small-right uk-margin-large-bottom uk-text-large uk-text-center uk-margin-remove@s">Ingresar</span>
+                <div class="uk-inline uk-margin-small-left@m">
                     <span class="uk-form-icon" uk-icon="icon: user"></span>
                     <input id='nom' name='nom' class="uk-input" type="text" placeholder="Nombre" aria-label="Input">
                 </div>
@@ -82,13 +105,44 @@
                     <span class="uk-form-icon" uk-icon="icon: lock"></span>
                     <input id='pwd' name='pwd' class="uk-input" type="password" placeholder="Password" aria-label="Input">
                 </div>
-                <a class="uk-button uk-button-default" href="javascript:void(0);" onclick="js_FS001();">Enviar</a>
+                <a class="uk-button uk-button-primary uk-margin-small-top uk-margin-bottom-small uk-margin-remove@s" href="javascript:void(0);" onclick="js_FS001();">Enviar</a>
             </div>
-            <hr />
+            <hr class="uk-margin-remove-bottom" />
             <div id="r_f001"></div>
-            <div id="r_f002"></div>
-            <div id="r_f003"></div>
-            
+            <div class="uk-flex-top uk-modal-container" id="r_f002" uk-modal></div>
+            <div class="uk-container uk-container-expand" id="r_f003"></div>
+        </div>
+        <!-- Fondo de inicio -->
+        <div id="fondo" uk-height-viewport="expand: true" class="uk-background-cover uk-light uk-flex" style="background-image: url('img/fondo.jpg');">
+            <h1 class="uk-width-1-2@m uk-text-center uk-margin-auto uk-margin-auto-vertical">Inicie sesión para comenzar</h1>
+        </div>
+        <!-- MODALES  -->
+        <div id="vacio" uk-modal>
+            <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
+                <div class="uk-modal-header uk-background-secondary uk-light">
+                    <h2 class="uk-modal-title">Campo vacío.</h2>
+                </div>
+                <div class="uk-modal-body">Alguno de los campos está vacío. Por favor, vuelva a intentarlo.</div>
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+            </div>
+        </div>
+        <div id="usuario-invalido" uk-modal>
+            <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
+                <div class="uk-modal-header uk-background-secondary uk-light">
+                    <h2 class="uk-modal-title">Usuario inválido.</h2>
+                </div>
+                <div class="uk-modal-body">El usuario o la contraseña indicados son erróneos. Por favor, vuelva a intentarlo.</div>
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+            </div>
+        </div>
+        <div id="numerico-invalido" uk-modal>
+            <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
+                <div class="uk-modal-header uk-background-secondary uk-light">
+                    <h2 class="uk-modal-title">Valor numérico inválido.</h2>
+                </div>
+                <div class="uk-modal-body">La cantidad y el precio del producto no pueden ser negativos. Por favor, ingrese números válidos.</div>
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+            </div>
         </div>
         
     </body>

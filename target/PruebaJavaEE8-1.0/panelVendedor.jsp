@@ -1,17 +1,4 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Vendedor</title>
-    </head>
-    <body>
-        <div class="uk-flex-top" id="vacio" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">Campo vacío. <br /> Alguno de los campos está vacío. Por favor, vuelva a intentarlo.</div>
-        </div>
-        <div class="uk-flex-top" id="usuario-invalido" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">Usuario inválido. <br /> El usuario o la contraseña indicados son erróneos. Por favor, vuelva a intentarlo.</div>
-        </div>
 <%! 
     //SCRIPLET -> funje como clase para evitar crear una.
     
@@ -23,7 +10,6 @@
         }
         return ok;
     }
-
 %>
 <%
     //Obtener los datos encapsulados en el POST
@@ -36,6 +22,7 @@
 <script>   
     $(function(){ 
         UIkit.modal('#vacio').show();
+        $('#fondo').show();
     });	
 </script> 
 <%
@@ -44,11 +31,18 @@
         boolean exito = validaUsu(usu,contra);
         if(exito){
 %>
-    <div class="uk-container uk-flex uk-flex-between">
-        <h1>Bienvenido <%= usu %></h1>
-        <div class="uk-flex uk-flex-column">
-            <a class="uk-button uk-button-primary" href="javascript:void(0);" onclick="js_FS003();">Cerrar sesión</a>
-            <a class="uk-button uk-button-default" href="javascript:void(0);" onclick="js_FS002();">Ingresar producto</a>
+
+    <script>
+        $(function(){ 
+            $("#fondo").hide();
+        });
+    </script>
+    <div class="uk-divider"></div>
+    <div class="uk-container uk-container-expand uk-flex uk-flex-column uk-flex-between@s uk-flex-row@s">
+        <h1 class="uk-text-center uk-margin-small-top uk-margin-medium-bottom uk-margin-remove@s">Bienvenido <%= usu %></h1>
+        <div class="uk-flex uk-flex-column-reverse uk-flex-column@s">
+            <a class="uk-button uk-button-danger" href="javascript:void(0);" onclick="js_FS003();">Cerrar sesión</a>
+            <a class="uk-button uk-button-primary" href="javascript:void(0);" onclick="js_FS002();">Ingresar producto</a>
         </div>
     </div>
     <hr />
@@ -59,6 +53,7 @@
 <script>   
     $(function(){ 
         UIkit.modal('#usuario-invalido').show();
+        $('#fondo').show();
     });	
 </script> 
 <%

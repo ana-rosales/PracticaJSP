@@ -14,7 +14,7 @@
     <body>
         <script>
             var prod = 0;
-            js_FS007();
+            var sesion = 0;
             function js_FS000(){
                 $('input').each(function() {
                     if(!$(this).is('input[type="hidden"]')){
@@ -40,6 +40,9 @@
                 });
             }
             function js_FS003(){
+                if(sesion == 1){
+                    sesion = 0;
+                }
                 $("#r_f001").empty();
                 $("#r_f003").empty();
                 $("#fondo").show();
@@ -47,17 +50,27 @@
             function js_FS004(){
                 UIkit.modal('#r_f002').hide();
             }
-            function js_FS001(){  
+            function js_FS001(){
                 prod = 0;
                 var v_01 = $("#nom").val(),
-                    v_02 = $("#pwd").val();
-                $.post("panelVendedor.jsp",         //pagina a la que se le envia los datos y de la que se recibe una respuesta
-                        {nom: v_01, pwd: v_02},     //datos a enviar
-                        (data)=>{                   //funcion  
-                            $("#r_f001").empty().html(data);
+                    v_02 = $("#pwd").val(),
+                    v_03 = sesion;
+                $.post("panelVendedor.jsp",                         //pagina a la que se le envia los datos y de la que se recibe una respuesta
+                        {nom: v_01, pwd: v_02, sesion: v_03},       //datos a enviar
+                        (data)=>{                                   //funcion
+                            //si la sesión esta iniciada solo append
+                            if(sesion == 1){
+                                $("#r_f001").append(data);
+                            } else {
+                                $("#r_f001").empty().html(data);
+                            }
+                            sesion = parseInt($("#sesion").val());
                         });
-                js_FS000();
-                js_FS003();
+                if(sesion == 0){
+                    js_FS003();
+                    js_FS000();
+                }
+                console.log(sesion);
             }
             function js_FS005(){
                 var v_01 = $('[name="prod"]').val(),
@@ -91,6 +104,12 @@
                         });
                 js_FS000();
             }
+            function js_FS008(){
+                if(sesion == 1){
+                    sesion = 0;
+                    js_FS001();
+                }
+            }
         </script>    
         <!-- Contenido de la página -->
         <div>
@@ -109,8 +128,8 @@
             </div>
             <hr class="uk-margin-remove-bottom" />
             <div id="r_f001"></div>
-            <div class="uk-flex-top uk-modal-container" id="r_f002" uk-modal></div>
-            <div class="uk-container uk-container-expand" id="r_f003"></div>
+            <div id="r_f002" class="uk-flex-top uk-modal-container" uk-modal></div>
+            <div id="r_f003" class="uk-container uk-container-expand"></div>
         </div>
         <!-- Fondo de inicio -->
         <div id="fondo" uk-height-viewport="expand: true" class="uk-background-cover uk-light uk-flex" style="background-image: url('img/fondo.jpg');">
@@ -144,6 +163,19 @@
                 <button class="uk-modal-close-default" type="button" uk-close></button>
             </div>
         </div>
+        <div id="confirmar-inicio" uk-modal>
+        <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <div class="uk-modal-header uk-background-secondary uk-light">
+                <h2 class="uk-modal-title">Nuevo inicio de sesión.</h2>
+            </div>
+            <div class="uk-modal-body">Si continúa se cerrará la sesión actual y se intentará abrir una nueva.<br />¿Desea continuar?</div>
+            <div class="uk-modal-footer uk-text-right uk-background-secondary uk-light">
+                <a class="uk-button uk-button-default uk-modal-close" href="javascript:void(0);">Cancelar</a>
+                <a class="uk-button uk-button-primary uk-modal-close" href="javascript:void(0);" onclick="js_FS008();">Continuar</a>
+            </div>
+        </div>
+    </div>
         
     </body>
 </html>

@@ -1,2 +1,5 @@
+com\apro\db\ConectorDB.class
+com\apro\comercio\ListaProductos.class
+com\apro\comercio\Producto.class
 ssocial\inm\pruebajavaee8\JAXRSConfiguration.class
 ssocial\inm\pruebajavaee8\resources\JavaEE8Resource.class

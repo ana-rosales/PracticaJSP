@@ -49,7 +49,9 @@
             <script>   
                 $(function(){ 
                     UIkit.modal('#vacio').show();
-                    (in_jvs_sesion.equals("0"))? $('#fondo').show():null;
+                    if((<%= haySesion_REQ %>).equals("0")){
+                        $('#fondo').show():null;
+                    }
                 });	
             </script> 
 <%
@@ -98,7 +100,9 @@
                 <script>   
                     $(function(){ 
                         UIkit.modal('#usuario-invalido').show();
-                        (in_jvs_sesion.equals("0"))? $('#fondo').show():null;
+                        if((<%= haySesion_REQ %>).equals("0")){
+                            $('#fondo').show():null;
+                        }
                     });	
                 </script> 
 <%

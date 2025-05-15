@@ -21,6 +21,9 @@
                     if($(this).attr('id') == 'in_hi_borrar'){
                        $(this).val('');
                     }
+                    if($(this).attr('id') == 'in_hi_modif'){
+                       $(this).val('');
+                    }
                     if(!$(this).is('input[type="hidden"]')){
                         $(this).val('');
                     }
@@ -37,11 +40,15 @@
                     $(this).val('');
                 });
             }
-            function js_FS002() {
+            function js_FS002(callback) {
+                js_FS000();
                 $.post("producto.html",{},(data)=>{
                     $("#r_f002").empty().html(data);
                     UIkit.modal('#r_f002').show();
                 });
+                if (typeof callback === "function") {
+                    setTimeout(callback, 50); 
+                }
             }
             function js_FS003(){
                 if(haySesion_TMP == 1){
@@ -63,7 +70,7 @@
                         (data)=>{                                   //funcion
                             //si la sesión esta iniciada solo append
                             if(haySesion_TMP == 1){
-                                $("#r_f001").append(data); //pintar el modal de confirmacion de nuevo inicio
+                                $("#r_f001").append(data);          //pintar el modal de confirmacion de nuevo inicio
                             } else {
                                 $("#r_f001").empty().html(data);    //info del usuario
                                 js_FS005();                         //info productos
@@ -83,8 +90,9 @@
                     v_05 = $('input[type="radio"]:checked').val(),
                     v_06,
                     v_07 = $('[name="categoria"]').val(),
-                    v_08 = swc_jsvb_inprod,
-                    v_09 = $('#in_hi_borrar').val();
+                    v_08 = swc_jsvb_inprod,                 //insertar producto
+                    v_09 = $('#in_hi_borrar').val(),        //borrar producto
+                    v_10 = $('#in_hi_modif').val();         //modificar producto
                     
                     if($('[name="disp"]').is(':checked')){
                         v_06 = '1';
@@ -94,9 +102,8 @@
                 
                 $.post("panelProductos.jsp",     //pagina a la que se le envia los datos y de la que se recibe una respuesta
                         {prod: v_01, cant: v_02, precio: v_03, desc: v_04, 
-                        tipo: v_05, disp: v_06, categoria: v_07, msg_jsv_inprod: v_08, msg_jsv_borrar: v_09},           //datos a enviar
+                        tipo: v_05, disp: v_06, categoria: v_07, msg_jsv_inprod: v_08, msg_jsv_borrar: v_09, modificar_MSG: v_10}, //datos a enviar
                         (data)=>{                //recibir respuesta
-                            console.log(data);
                             UIkit.modal('#r_f002').hide();
                             $("#r_f003").empty().html(data);
                         });
@@ -119,6 +126,21 @@
             function js_FS009(idProd_PARAM){
                 $('#in_hi_borrar').val(idProd_PARAM);
                 UIkit.modal('#confirmar-borrar').show();
+            }
+            function js_FS010(id_PARAM,nom_PARAM,cant_PARAM,precio_PARAM,desc_PARAM,tipo_PARAM,disp_PARAM,catego_PARAM){
+                js_FS002(function (){
+                    $('#in_hi_modif').val(id_PARAM);
+                    $('#prod').val(nom_PARAM);
+                    $('#cant').val(cant_PARAM);
+                    $('#precio').val(precio_PARAM);
+                    $('#desc').val(desc_PARAM);
+                    $('input[name="tipo"][value="'+tipo_PARAM+'"]').prop('checked', true);
+                    $('#disp').prop('checked', disp_PARAM == 1);
+                    $('#categoria').val(catego_PARAM);
+                    
+                    $('#crearProducto_TIT').empty().html("Modificar producto.");
+                    $('#crearProducto_BTN').empty().html("Modificar producto.");
+                });
             }
         </script>    
         <!-- Contenido de la página -->
@@ -200,5 +222,6 @@
             </div> 
         </div>
         <input type="hidden" id="in_hi_borrar">
+        <input type="hidden" id="in_hi_modif">
     </body>
 </html>

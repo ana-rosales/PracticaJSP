@@ -2,10 +2,12 @@
 <%@page import="java.util.ArrayList,java.util.Arrays,java.io.IOException,com.apro.comercio.Producto,com.apro.comercio.ListaProductos,com.apro.db.ConectorDB,java.sql.SQLException,java.sql.ResultSet,java.sql.Connection"%>
 <%
     ConectorDB.cargarDriver_BD("org.mariadb.jdbc.Driver");
+    Connection conexion = ConectorDB.crearConexion_BD();
     
     // REQUEST
     String in_jvs_inprod = request.getParameter("msg_jsv_inprod");
     String in_jvs_borrar = request.getParameter("msg_jsv_borrar");
+    String in_jvs_modificar = request.getParameter("modificar_MSG");
     
     // SESSION
     Integer usuID_BD = (Integer) session.getAttribute("usu_SESS");
@@ -78,43 +80,40 @@
                 amc_jvo_prod.setCant(tmp_jvi_cant);
                 amc_jvo_prod.setDisp(disp_INT);
                 
-                // Agregarlo a la BASE
-                try (Connection conexion_BD = ConectorDB.crearConexion_BD()) {
+                //si existe un c_i_clave, modificarlo
+                if(in_jvs_modificar != null && !in_jvs_modificar.isEmpty()){
+                    int tmp_jvi_modificar = Integer.parseInt(in_jvs_modificar);
+                    System.out.println("Se modificar[a el sig prod> " + tmp_jvi_modificar);
                     
+                    String consulta_BD = "SELECT c_i_clave FROM o_producto WHERE c_i_clave = " + tmp_jvi_modificar;
+                    ResultSet resultado = ConectorDB.consultar_BD(consulta_BD, conexion);
+                    
+                    boolean existe_PROD = false;
+                    //modificar la primera coincidencia
+                    if(resultado.next()) {
+                        existe_PROD = true;
+                        
+                        String update_BD = "UPDATE o_producto "
+                                            + "SET n_v_nombre = '" + prod + "', d_v_cant = " + tmp_jvi_cant + ", d_v_precio = " + tmp_jvf_precio + ", d_v_desc = '" + desc + "', d_v_tipo = '" + tipo + "', d_v_disp = " + disp_INT + ", d_v_catego = '" + categoria + "' "
+                                            + "WHERE c_i_clave = " + resultado.getString("c_i_clave");
+                        int update = ConectorDB.accion_BD(update_BD, conexion);
+
+                        if(update > 0){
+                            System.out.println("exito update");
+                        }
+                    }
+                    if(!existe_PROD){
+                        System.out.println("No existe el producto a modificar");
+                    }
+                } else {
+                    // Agregarlo a la BASE si no existe
                     String insertar_BD = "insert into o_producto (c_i_usu,n_v_nombre,d_v_cant,d_v_precio,d_v_desc,d_v_tipo,d_v_disp,d_v_catego)" + 
                                             "values ('" + usuID_BD + "','" + prod + "','" + tmp_jvi_cant + "','" + tmp_jvf_precio + "','" + desc + "','" + tipo + "','" + disp_INT + "','" + categoria + "');";
-                    int insertar = ConectorDB.insertar_BD(insertar_BD,conexion_BD);
-
+                    int insertar = ConectorDB.accion_BD(insertar_BD, conexion);
                     if(insertar > 0){
                         System.out.println("exito registro");
                     }
-
-                } catch (SQLException e) {
-                    System.err.println("Error en la conexión o consulta: " + e.getMessage());
                 }
-
-                amc_jvo_prods.cfg_jmv_add(amc_jvo_prod);
-                // Guardar la lista en la sesión
-                session.setAttribute("listaProductos", amc_jvo_prods);
-%>
-                <%--<script>
-                    $(function(){ 
-                        UIkit.modal('#out_hm_exito').show();
-                    });
-                </script>
-                
-                <!-- Este modal puede ir en index.html -->
-                
-                <div id="out_hm_exito" uk-modal>
-                    <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
-                        <div class="uk-modal-header uk-background-secondary uk-light">
-                            <h2 class="uk-modal-title">Registro exitoso.</h2>
-                        </div>
-                        <div class="uk-modal-body">El producto fue registrado exitosamente.</div>
-                        <button class="uk-modal-close-default" type="button" uk-close></button>
-                    </div>
-                </div>--%>
-<%
             } else {
 %>
                 <script>   
@@ -131,16 +130,11 @@
     if(in_jvs_borrar != null && !in_jvs_borrar.isEmpty()){
         int tmp_jvi_borrar = Integer.parseInt(in_jvs_borrar);
 
-        try (Connection conexion = ConectorDB.crearConexion_BD()) {
-            String sql = "delete from o_producto where c_i_clave = " + tmp_jvi_borrar;
-            int borrar = ConectorDB.insertar_BD(sql,conexion);
+        String sql = "delete from o_producto where c_i_clave = " + tmp_jvi_borrar;
+        int borrar = ConectorDB.accion_BD(sql, conexion);
 
-            if(borrar > 0){
-                System.out.println("exito al eliminar.");
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Error en la conexión o consulta: " + e.getMessage());
+        if(borrar > 0){
+            System.out.println("exito al eliminar.");
         }
     }
 %>
@@ -157,12 +151,13 @@
                     <th>Tipo</th>
                     <th>Disponible</th>
                     <th>Categoría</th>
+                    <th><strong>Editar</strong></th>
                     <th><strong>Borrar</strong></th>
                 </tr>
             </thead>
             <tbody>
 <%  
-    try (Connection conexion = ConectorDB.crearConexion_BD()) {
+    try {
         ResultSet resultado = ConectorDB.consultar_BD("SELECT * FROM o_producto WHERE c_i_usu = " + usuID_BD ,conexion);
 
         boolean tieneProd_USU = false;
@@ -203,16 +198,19 @@
 <%
                 if(disp_NUM == 1){
 %>              
-                        <input class="uk-checkbox" type="checkbox" disabled checked>
+                    <input class="uk-checkbox tabla" type="checkbox" disabled checked>
 <%
                 } else {
 %>
-                        <input class="uk-checkbox" type="checkbox" disabled>
+                    <input class="uk-checkbox tabla" type="checkbox" disabled>
 <%
                 }
 %>
                     </th>
                     <th><%= catego_PROD %></th>
+                    <th><a uk-icon="icon: pencil" href="javascript:void(0);" onclick="js_FS010(<%= ID_NUM %>,'<%= nom_PROD %>',<%= cant_NUM %>,
+                           <%= precio_NUM %>,'<%= desc_PROD.replace("\n", " ").replace("\r", " ").replace("'", "\\'").replace("\"", "\\\"") %>',
+                                       '<%= tipo_PROD %>',<%= disp_NUM %>,'<%= catego_PROD %>');"></a></th>
                     <th><a uk-icon="icon: trash" href="javascript:void(0);" onclick="js_FS009(<%= ID_NUM %>);"></a></th>
                 </tr>
 <%      

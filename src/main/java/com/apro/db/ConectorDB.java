@@ -54,8 +54,7 @@ public class ConectorDB {
         }
     }
     
-    //5.
-    public static int insertar_BD(String consulta_PARAM, Connection conexion_PARAM){
+    public static int accion_BD(String consulta_PARAM, Connection conexion_PARAM){
         try{
             Statement statement_CON = conexion_PARAM.createStatement();
             return statement_CON.executeUpdate(consulta_PARAM);
@@ -64,6 +63,7 @@ public class ConectorDB {
             return -1;
         }
     }
+    
     /*
     public static void main(String[] args) {
     

@@ -139,20 +139,20 @@
     }
 %>
   
-    <h2>Productos</h2>
+    <h2 class='uk-text-bold'><span class='uk-text-stroke'>Pro</span>ductos</h2>
     <div class="uk-overflow-auto">
-        <table class="uk-table uk-table-striped">
+        <table class="uk-table uk-table-striped uk-table-small uk-table-justify uk-margin-medium-bottom">
             <thead>
                 <tr>
-                    <th>Nombre del producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Descripción</th>
-                    <th>Tipo</th>
-                    <th>Disponible</th>
-                    <th>Categoría</th>
-                    <th><strong>Editar</strong></th>
-                    <th><strong>Borrar</strong></th>
+                    <th class='uk-text-center uk-text-secondary'>Nombre</th>
+                    <th class='uk-text-center uk-text-secondary'>Cantidad</th>
+                    <th class='uk-text-center uk-text-secondary'>Precio</th>
+                    <th class='uk-text-center uk-text-secondary'>Descripción</th>
+                    <th class='uk-text-center uk-text-secondary'>Tipo</th>
+                    <th class='uk-text-center uk-text-secondary'>Disponible</th>
+                    <th class='uk-text-center uk-text-secondary'>Categoría</th>
+                    <th class='uk-text-center uk-text-success'>Editar</th>
+                    <th class='uk-text-center uk-text-danger'>Borrar</th>
                 </tr>
             </thead>
             <tbody>
@@ -189,12 +189,12 @@
 
 %>
                 <tr>
-                    <th><%= nom_PROD %></th>
-                    <th><%= cant_NUM %></th>
-                    <th><%= precio_NUM %></th>
-                    <th><%= desc_PROD %></th>
-                    <th><%= tipo_PROD %></th>
-                    <th>
+                    <td class='uk-text-center'><%= nom_PROD %></td>
+                    <td class='uk-text-center'><%= cant_NUM %></td>
+                    <td class='uk-text-center'>$<%= precio_NUM %> MXN</td>
+                    <td class='uk-table-expand'><%= desc_PROD %></td>
+                    <td class='uk-text-center'><%= tipo_PROD %></td>
+                    <td class='uk-text-center'>
 <%
                 if(disp_NUM == 1){
 %>              
@@ -206,18 +206,18 @@
 <%
                 }
 %>
-                    </th>
-                    <th><%= catego_PROD %></th>
-                    <th><a uk-icon="icon: pencil" href="javascript:void(0);" onclick="js_FS010(<%= ID_NUM %>,'<%= nom_PROD %>',<%= cant_NUM %>,
+                    </td>
+                    <td class='uk-text-center'><%= catego_PROD %></td>
+                    <td><a class="uk-text-success" uk-icon="icon: pencil" href="javascript:void(0);" onclick="js_FS010(<%= ID_NUM %>,'<%= nom_PROD %>',<%= cant_NUM %>,
                            <%= precio_NUM %>,'<%= desc_PROD.replace("\n", " ").replace("\r", " ").replace("'", "\\'").replace("\"", "\\\"") %>',
-                                       '<%= tipo_PROD %>',<%= disp_NUM %>,'<%= catego_PROD %>');"></a></th>
-                    <th><a uk-icon="icon: trash" href="javascript:void(0);" onclick="js_FS009(<%= ID_NUM %>);"></a></th>
+                                       '<%= tipo_PROD %>',<%= disp_NUM %>,'<%= catego_PROD %>');"></a></td>
+                    <td><a class="uk-text-danger" uk-icon="icon: trash" href="javascript:void(0);" onclick="js_FS009(<%= ID_NUM %>);"></a></td>
                 </tr>
 <%      
         }
         if(!tieneProd_USU){
 %>
-                <tr><th colspan="8"><p>Aún no se registra ningún producto.</p></th></tr>       
+                <tr><td colspan="9"><p>Aún no se registra ningún producto.</p></td></tr>       
 <%      }
     } catch (SQLException e) {
         System.err.println("Error en la conexión o consulta: " + e.getMessage());

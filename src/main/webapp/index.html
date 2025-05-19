@@ -65,18 +65,45 @@
                 var v_01 = $("#nom").val(),
                     v_02 = $("#pwd").val(),
                     v_03 = haySesion_TMP;
+                    
+            
+                //a continuacion se le envian datos a panelVendedor.jsp
+                //y tarda un tiempo, pero se resiben otros datos con (data)=>{}
+                //donde se procesan
+            
                 $.post("panelVendedor.jsp",                         //pagina a la que se le envia los datos y de la que se recibe una respuesta
                         {nom: v_01, pwd: v_02, sesion: v_03},       //datos a enviar
                         (data)=>{                                   //funcion
-                            //si la sesión esta iniciada solo append
+                            /*console.log("la sesion esta iniciada: " + haySesion_TMP);
+                            $("#r_f001").append(data);
+                            haySesion_TMP = parseInt($("#sesion").val());
+                            
+                            console.log("la sesion se inicio: " + haySesion_TMP);
+                            if(haySesion_TMP == 1){ 
+                                console.log("se reinicia html... ");
+                                console.log("...");
+                                $("#r_f001").empty().html(data);
+                            }*/
+                            
                             if(haySesion_TMP == 1){
                                 $("#r_f001").append(data);          //pintar el modal de confirmacion de nuevo inicio
-                            } else {
+                            } else { //no hay sesion
                                 $("#r_f001").empty().html(data);    //info del usuario
                                 js_FS005();                         //info productos
                             }
                             haySesion_TMP = parseInt($("#sesion").val());
-                        });
+                        });      
+                // 4 casos: 
+                // 1. sesion iniciada = 0 y se puede iniciar = 0
+                //      --> se muestra el modal correspondiente
+                // 2. sesion iniciada = 0 y se puede iniciar = 1 
+                //      --> se muestra la info de usuario y productos
+                // 3. sesion iniciada = 1 y se puede iniciar = 0
+                //      --> se muestra el modal Y SE MANTIENE INFO DE USUARIO
+                // 3. sesion iniciada = 1 y se puede iniciar = 1
+                //      --> se muestra la info de usuario y productos
+                
+                
                 if(haySesion_TMP == 0){
                     js_FS003();
                     js_FS000();
@@ -119,9 +146,8 @@
             function js_FS008(){
                 if(haySesion_TMP == 1){
                     haySesion_TMP = 0;
-                    js_FS001();
-                    console.log(haySesion_TMP);
                 }
+                js_FS001();
             }
             function js_FS009(idProd_PARAM){
                 $('#in_hi_borrar').val(idProd_PARAM);
@@ -147,7 +173,7 @@
         <div>
             <div class="uk-divider"></div>
             <div class="uk-container uk-container-xsmall uk-flex uk-flex-column uk-flex-wrap-stretch uk-flex-between@s uk-margin-remove-left@s uk-margin-remove-right@s uk-flex-row@s">
-                <span class="uk-text-success uk-margin-small-right uk-margin-large-bottom uk-text-large uk-text-center uk-margin-remove@s">Ingresar</span>
+                <span class="uk-text-danger uk-margin-small-right uk-margin-large-bottom uk-text-large uk-text-bold uk-text-center uk-margin-remove@s">Ingresar</span>
                 <div class="uk-inline uk-margin-small-left@m">
                     <span class="uk-form-icon" uk-icon="icon: user"></span>
                     <input id='nom' name='nom' class="uk-input" type="text" placeholder="Nombre" aria-label="Input">
@@ -161,11 +187,16 @@
             <hr class="uk-margin-remove-bottom" />
             <div id="r_f001"></div>
             <div id="r_f002" class="uk-flex-top uk-modal-container" uk-modal></div>
-            <div id="r_f003" class="uk-container uk-container-expand uk-margin-bottom"></div>
+            <div id="r_f003" class="uk-container uk-container-expand"></div>
         </div>
         <!-- Fondo de inicio -->
-        <div id="fondo" uk-height-viewport="expand: true" class="uk-background-cover uk-light uk-flex" style="background-image: url('img/fondo.jpg');">
-            <h1 class="uk-width-1-2@m uk-text-center uk-margin-auto uk-margin-auto-vertical">Inicie sesión para comenzar</h1>
+        <div id="fondo" uk-height-viewport="expand: true" class="uk-background-cover uk-light uk-flex uk-flex-column" style="background-image: url('img/fondo.jpg');">
+            <div class='uk-margin-auto-vertical'>
+                <h1 class="uk-width-1-2@m uk-text-left uk-heading-medium uk-text-bold uk-margin-xlarge-left">
+                    Manejo <span class="uk-text-stroke">de inventario</span>.
+                </h1>
+                <p class="uk-text-bold uk-text-large uk-margin-xlarge-left">Inicie <span class='uk-text-italic'>sesión</span> para comenzar.</p>
+            </div>
         </div>
         <!-- MODALES  -->
         <div id="vacio" uk-modal>

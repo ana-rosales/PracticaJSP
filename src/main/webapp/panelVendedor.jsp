@@ -49,8 +49,8 @@
             <script>   
                 $(function(){ 
                     UIkit.modal('#vacio').show();
-                    if((<%= haySesion_REQ %>).equals("0")){
-                        $('#fondo').show():null;
+                    if(<%= haySesion_REQ %> === "0"){
+                        $('#fondo').show();
                     }
                 });	
             </script> 
@@ -59,8 +59,9 @@
             //validar usuario
             int usuID_BD = validaUsu(usu_REQ,contra_REQ);
             
-            //si ingresa un usuario valido y no hay campos vacios
+            //AQUI EL USUARIO ES VALIDO
             if(usuID_BD >= 0){
+                // se intenta iniciar cuando aun no hay sesion
                 if("0".equals(haySesion_REQ)){
                     
                     // volver a iniciar sesion con el nuevo usuario
@@ -78,15 +79,18 @@
                     <div class="uk-divider"></div>
                     <%-- info usuario --%>
                     <div class="uk-container uk-container-expand uk-flex uk-flex-column uk-flex-between@s uk-flex-row@s">
-                        <h1 class="uk-text-center uk-margin-small-top uk-margin-medium-bottom uk-margin-remove@s">Bienvenido <%= usu_REQ %></h1>
+                        <h1 class="uk-text-center uk-text-bold uk-margin-auto-vertical uk-margin-remove@s">
+                            Bienvenido <span class='uk-text-stroke'><%= usu_REQ %></span>
+                        </h1>
                         <div class="uk-flex uk-flex-column-reverse uk-flex-column@s">
-                            <a class="uk-button uk-button-danger" href="javascript:void(0);" onclick="js_FS003();">Cerrar sesión</a>
-                            <a class="uk-button uk-button-primary" href="javascript:void(0);" onclick="js_FS002();">Ingresar producto</a>
+                            <a id='cerrarSesion_BTN' class="uk-button uk-button-danger uk-margin-bottom" href="javascript:void(0);" onclick="js_FS003();">Cerrar sesión</a>
+                            <a id='formCrear_BTN' class="uk-button uk-button-primary" href="javascript:void(0);" onclick="js_FS002();">Ingresar producto</a>
                         </div>
                     </div>
                     <hr />
-<%
+<%              // se intenta iniciar cuando ya hay sesion
                 } else {
+                    haySesion_REQ = "0";
 %>
                     <script>   
                         $(function(){ 
@@ -100,8 +104,8 @@
                 <script>   
                     $(function(){ 
                         UIkit.modal('#usuario-invalido').show();
-                        if((<%= haySesion_REQ %>).equals("0")){
-                            $('#fondo').show():null;
+                        if(<%= haySesion_REQ %> === "0"){
+                            $('#fondo').show();
                         }
                     });	
                 </script> 

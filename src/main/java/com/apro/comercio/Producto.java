@@ -11,11 +11,19 @@ package com.apro.comercio;
 public class Producto {
     private String nom,desc,tipo,categoria; //primero declarar estas
     private float precio; //segundo
-    private int cant, disp;
+    private int cant, disp, id;
 
     public Producto() {
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
     public String getNom() {
         return nom;
     }

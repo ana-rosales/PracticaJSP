@@ -1,9 +1,8 @@
-<!DOCTYPE html><!-- para que el coprocesador del navegador interprete solo las etiquetas html y lo demas como texto plano -->
+<!DOCTYPE html>
 <html class="uk-background-secondary uk-light">
     <head>
         <title>Negocio</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        
         <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- para volver responsiva la pagina -->
         <script src="js/jquery-3.7.1.min.js"></script>
         <link rel="stylesheet" href="css/uikit.css" />
@@ -12,167 +11,10 @@
 
     </head>
     <body>
-        <script>
-            var haySesion_TMP = 0;
-            var swc_jsvb_inprod = 0;
-            
-            function js_FS000(){
-                $('input').each(function() {
-                    if($(this).attr('id') == 'in_hi_borrar'){
-                       $(this).val('');
-                    }
-                    if($(this).attr('id') == 'in_hi_modif'){
-                       $(this).val('');
-                    }
-                    if(!$(this).is('input[type="hidden"]')){
-                        $(this).val('');
-                    }
-                    if($(this).is('input[type="checkbox"], input[type="radio"]')){
-                        if(!$(this).hasClass("tabla")){
-                            $(this).prop('checked', false);
-                        }
-                    }
-                });
-                $('textarea').each(function() {
-                    $(this).val('');
-                });
-                $('select').each(function() {
-                    $(this).val('');
-                });
-            }
-            function js_FS002(callback) {
-                js_FS000();
-                $.post("producto.html",{},(data)=>{
-                    $("#r_f002").empty().html(data);
-                    UIkit.modal('#r_f002').show();
-                });
-                if (typeof callback === "function") {
-                    setTimeout(callback, 50); 
-                }
-            }
-            function js_FS003(){
-                if(haySesion_TMP == 1){
-                    haySesion_TMP = 0;
-                }
-                $("#r_f001").empty();
-                $("#r_f003").empty();
-                $("#fondo").show();
-            }
-            function js_FS004(){
-                UIkit.modal('#r_f002').hide();
-            }
-            function js_FS001(){
-                var v_01 = $("#nom").val(),
-                    v_02 = $("#pwd").val(),
-                    v_03 = haySesion_TMP;
-                    
-            
-                //a continuacion se le envian datos a panelVendedor.jsp
-                //y tarda un tiempo, pero se resiben otros datos con (data)=>{}
-                //donde se procesan
-            
-                $.post("panelVendedor.jsp",                         //pagina a la que se le envia los datos y de la que se recibe una respuesta
-                        {nom: v_01, pwd: v_02, sesion: v_03},       //datos a enviar
-                        (data)=>{                                   //funcion
-                            /*console.log("la sesion esta iniciada: " + haySesion_TMP);
-                            $("#r_f001").append(data);
-                            haySesion_TMP = parseInt($("#sesion").val());
-                            
-                            console.log("la sesion se inicio: " + haySesion_TMP);
-                            if(haySesion_TMP == 1){ 
-                                console.log("se reinicia html... ");
-                                console.log("...");
-                                $("#r_f001").empty().html(data);
-                            }*/
-                            
-                            if(haySesion_TMP == 1){
-                                $("#r_f001").append(data);          //pintar el modal de confirmacion de nuevo inicio
-                            } else { //no hay sesion
-                                $("#r_f001").empty().html(data);    //info del usuario
-                                js_FS005();                         //info productos
-                            }
-                            haySesion_TMP = parseInt($("#sesion").val());
-                        });      
-                // 4 casos: 
-                // 1. sesion iniciada = 0 y se puede iniciar = 0
-                //      --> se muestra el modal correspondiente
-                // 2. sesion iniciada = 0 y se puede iniciar = 1 
-                //      --> se muestra la info de usuario y productos
-                // 3. sesion iniciada = 1 y se puede iniciar = 0
-                //      --> se muestra el modal Y SE MANTIENE INFO DE USUARIO
-                // 3. sesion iniciada = 1 y se puede iniciar = 1
-                //      --> se muestra la info de usuario y productos
-                
-                
-                if(haySesion_TMP == 0){
-                    js_FS003();
-                    js_FS000();
-                }
-            }
-            function js_FS005(){
-                var v_01 = $('[name="prod"]').val(),
-                    v_02 = $('[name="cant"]').val(),
-                    v_03 = $('[name="precio"]').val(),
-                    v_04 = $('[name="desc"]').val(),
-                    v_05 = $('input[type="radio"]:checked').val(),
-                    v_06,
-                    v_07 = $('[name="categoria"]').val(),
-                    v_08 = swc_jsvb_inprod,                 //insertar producto
-                    v_09 = $('#in_hi_borrar').val(),        //borrar producto
-                    v_10 = $('#in_hi_modif').val();         //modificar producto
-                    
-                    if($('[name="disp"]').is(':checked')){
-                        v_06 = '1';
-                    }else{
-                        v_06 = '0';
-                    }
-                
-                $.post("panelProductos.jsp",     //pagina a la que se le envia los datos y de la que se recibe una respuesta
-                        {prod: v_01, cant: v_02, precio: v_03, desc: v_04, 
-                        tipo: v_05, disp: v_06, categoria: v_07, msg_jsv_inprod: v_08, msg_jsv_borrar: v_09, modificar_MSG: v_10}, //datos a enviar
-                        (data)=>{                //recibir respuesta
-                            UIkit.modal('#r_f002').hide();
-                            $("#r_f003").empty().html(data);
-                        });
-                if(haySesion_TMP == 0){
-                    js_FS000();
-                }
-            }
-            function js_FS007(){
-                swc_jsvb_inprod = 1;
-                js_FS005();
-                swc_jsvb_inprod = 0;
-            }
-            function js_FS008(){
-                if(haySesion_TMP == 1){
-                    haySesion_TMP = 0;
-                }
-                js_FS001();
-            }
-            function js_FS009(idProd_PARAM){
-                $('#in_hi_borrar').val(idProd_PARAM);
-                UIkit.modal('#confirmar-borrar').show();
-            }
-            function js_FS010(id_PARAM,nom_PARAM,cant_PARAM,precio_PARAM,desc_PARAM,tipo_PARAM,disp_PARAM,catego_PARAM){
-                js_FS002(function (){
-                    $('#in_hi_modif').val(id_PARAM);
-                    $('#prod').val(nom_PARAM);
-                    $('#cant').val(cant_PARAM);
-                    $('#precio').val(precio_PARAM);
-                    $('#desc').val(desc_PARAM);
-                    $('input[name="tipo"][value="'+tipo_PARAM+'"]').prop('checked', true);
-                    $('#disp').prop('checked', disp_PARAM == 1);
-                    $('#categoria').val(catego_PARAM);
-                    
-                    $('#crearProducto_TIT').empty().html("Modificar producto.");
-                    $('#crearProducto_BTN').empty().html("Modificar producto.");
-                });
-            }
-        </script>    
-        <!-- Contenido de la página -->
         <div>
+        <!-- Contenido pagina -->
             <div class="uk-divider"></div>
-            <div class="uk-container uk-container-xsmall uk-flex uk-flex-column uk-flex-wrap-stretch uk-flex-between@s uk-margin-remove-left@s uk-margin-remove-right@s uk-flex-row@s">
+            <div id="r_ingreso" class="uk-container uk-container-xsmall uk-flex uk-flex-column uk-flex-wrap-stretch uk-flex-between@s uk-margin-remove-left@s uk-margin-remove-right@s uk-flex-row@s">
                 <span class="uk-text-danger uk-margin-small-right uk-margin-large-bottom uk-text-large uk-text-bold uk-text-center uk-margin-remove@s">Ingresar</span>
                 <div class="uk-inline uk-margin-small-left@m">
                     <span class="uk-form-icon" uk-icon="icon: user"></span>
@@ -182,13 +24,14 @@
                     <span class="uk-form-icon" uk-icon="icon: lock"></span>
                     <input id='pwd' name='pwd' class="uk-input" type="password" placeholder="Password" aria-label="Input">
                 </div>
-                <a class="uk-button uk-button-primary uk-margin-small-top uk-margin-bottom-small uk-margin-remove@s" href="javascript:void(0);" onclick="js_FS001();">Enviar</a>
+                <a class="uk-button uk-button-primary uk-margin-small-top uk-margin-bottom-small uk-margin-remove@s" href="javascript:void(0);" onclick="js_haySess(js_resHayLogin);">Enviar</a>
             </div>
             <hr class="uk-margin-remove-bottom" />
-            <div id="r_f001"></div>
-            <div id="r_f002" class="uk-flex-top uk-modal-container" uk-modal></div>
-            <div id="r_f003" class="uk-container uk-container-expand"></div>
+            <div id="r_infoUSU"></div>
+            <div id="r_formPROD" class="uk-flex-top uk-modal-container" uk-modal></div>
+            <div id="r_infoPROD" class="uk-container uk-container-expand"></div>
         </div>
+        <div id="r_RESVAL"></div>
         <!-- Fondo de inicio -->
         <div id="fondo" uk-height-viewport="expand: true" class="uk-background-cover uk-light uk-flex uk-flex-column" style="background-image: url('img/fondo.jpg');">
             <div class='uk-margin-auto-vertical'>
@@ -208,10 +51,10 @@
                 <button class="uk-modal-close-default" type="button" uk-close></button>
             </div>
         </div>
-        <div id="usuario-invalido" uk-modal>
+        <div id="usuario-incorrecto" uk-modal>
             <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
                 <div class="uk-modal-header uk-background-secondary uk-light">
-                    <h2 class="uk-modal-title">Usuario inválido.</h2>
+                    <h2 class="uk-modal-title">Usuario incorrecto.</h2>
                 </div>
                 <div class="uk-modal-body">El usuario o la contraseña indicados son erróneos. Por favor, vuelva a intentarlo.</div>
                 <button class="uk-modal-close-default" type="button" uk-close></button>
@@ -226,7 +69,7 @@
                 <button class="uk-modal-close-default" type="button" uk-close></button>
             </div>
         </div>
-        <div id="confirmar-inicio" uk-modal>
+        <div id="nuevo-inicio" uk-modal>
             <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
                 <button class="uk-modal-close-default" type="button" uk-close></button>
                 <div class="uk-modal-header uk-background-secondary uk-light">
@@ -235,7 +78,7 @@
                 <div class="uk-modal-body">Si continúa se cerrará la sesión actual y se intentará abrir una nueva.<br />¿Desea continuar?</div>
                 <div class="uk-modal-footer uk-text-right uk-background-secondary uk-light">
                     <a class="uk-button uk-button-default uk-modal-close" href="javascript:void(0);">Cancelar</a>
-                    <a class="uk-button uk-button-primary uk-modal-close" href="javascript:void(0);" onclick="js_FS008();">Continuar</a>
+                    <a class="uk-button uk-button-primary uk-modal-close" href="javascript:void(0);" onclick="js_valUsu(js_resVal);">Continuar</a>
                 </div>
             </div> 
         </div>
@@ -254,5 +97,6 @@
         </div>
         <input type="hidden" id="in_hi_borrar">
         <input type="hidden" id="in_hi_modif">
+        <script src="js/index.js"></script>
     </body>
 </html>

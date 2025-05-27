@@ -6,7 +6,6 @@ package com.apro.comercio;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.io.Serializable;
 
 /**
  * En este objeto se almacenan todos los productos de un vendedor.
@@ -58,20 +57,24 @@ public class ListaProductos {
      * Método para saber si está vacía la lista.
      * @return booleano
      */
-    public boolean cfg_jmb_vacia(){
+    public boolean esVacia(){
         return this.amc_jal_prods.isEmpty();
     }
     
-    public void cfg_jmv_add(Producto elm_jvo_prod){
+    public void add(Producto elm_jvo_prod){
         this.amc_jal_prods.add(elm_jvo_prod);
     }
     
-    public int cfg_jmi_indexOf(Producto elm_jvo_prod){
+    public int indexOf(Producto elm_jvo_prod){
         return this.amc_jal_prods.indexOf(elm_jvo_prod);
     }
     
-    public Producto cfg_jmo_remove(int idx_jvi_prod){
+    public Producto remove(int idx_jvi_prod){
         return this.amc_jal_prods.remove(idx_jvi_prod);
+    }
+    
+    public int size(){
+        return this.amc_jal_prods.size();
     }
     
 }

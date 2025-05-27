@@ -1,228 +1,126 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="com.apro.comercio.ListaProductos"%>
+<%@page import="com.apro.comercio.Usuario"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="com.apro.db.APConnection"%>
+<%@page import="com.apro.db.APDataSource"%>
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
-<%@page import="java.util.ArrayList,java.util.Arrays,java.io.IOException,com.apro.comercio.Producto,com.apro.comercio.ListaProductos,com.apro.db.ConectorDB,java.sql.SQLException,java.sql.ResultSet,java.sql.Connection"%>
+<%@page import="com.apro.comercio.Producto,com.apro.db.ConectorBD,java.sql.SQLException,java.sql.ResultSet,java.sql.Connection"%>
 <%
-    ConectorDB.cargarDriver_BD("org.mariadb.jdbc.Driver");
-    Connection conexion = ConectorDB.crearConexion_BD();
-    
-    // REQUEST
-    String in_jvs_inprod = request.getParameter("msg_jsv_inprod");
-    String in_jvs_borrar = request.getParameter("msg_jsv_borrar");
-    String in_jvs_modificar = request.getParameter("modificar_MSG");
+    //Obtener el DataSource para consultar.
+    String usu_BD = "root", 
+            pwd_BD = "admin", 
+            base_BD = "negocio", 
+            driver_BD = "org.mariadb.jdbc.Driver",
+            url_BD = "jdbc:mariadb://localhost:3360/";    
+    APDataSource ds_CON = ConectorBD.getDataSource(usu_BD, pwd_BD, base_BD, driver_BD, url_BD);
     
     // SESSION
-    Integer usuID_BD = (Integer) session.getAttribute("usu_SESS");
+    Usuario usu_OBJ = (Usuario) session.getAttribute("usu_SESS");
     
-    System.out.println("El usuario actual tiene id: " + session.getAttribute("usu_SESS"));
+    //no se puede mostrar nada si no hay una sesion iniciada
+    if(usu_OBJ != null){
+        int id_USU = usu_OBJ.getId_USU();
     
-    if (usuID_BD == null) {
-        System.out.println("Error: el usuario no está autenticado");
-        usuID_BD = -1;
-    }
-    
-    // Obtener la lista de productos desde la sesión
-    ListaProductos amc_jvo_prods = (ListaProductos) session.getAttribute("listaProductos");
-
-    // Si no existe, crearla
-    if (amc_jvo_prods == null) {
-        amc_jvo_prods = new ListaProductos();
-    }
-    
-    // Codigo para crear un objeto producto e ingresarlo a una lista.
-    if(("1").equals(in_jvs_inprod)) {
-        
-        //obtener campos encapsulados en el post
-        String usu_REQ = request.getParameter("usu"),
-        prod = request.getParameter("prod"),
-        cant = request.getParameter("cant"),
-        precio = request.getParameter("precio"),
-        desc = request.getParameter("desc"),
-        tipo = request.getParameter("tipo"),
-        disp = request.getParameter("disp"),
-        categoria = request.getParameter("categoria");
-        
-        //Disponibilidad.
-        int disp_INT;
-        if(disp.equals("0")){
-            disp_INT = 0;
-        } else {
-            disp_INT = 1;
-        }
-
-        //validar campos vacios
-        if(prod.equals("") || cant.equals("") || precio.equals("") || desc.equals("") || tipo == null || categoria.equals("")){
 %>
-            <script>
-                $(function(){ 
-                    UIkit.modal('#vacio').show();
-                });
-            </script>
-<%    
-        } else {
-            //validar campos numericos
-            float tmp_jvf_precio = Float.parseFloat(precio);
-            int tmp_jvi_cant;
-
-            try{
-                tmp_jvi_cant = Integer.parseInt(cant);
-            } catch (NumberFormatException nfe){
-                tmp_jvi_cant = -1;     
-            }
-
-            if(tmp_jvi_cant >= 0 && tmp_jvf_precio >= 0){
-                //aquí el producto ES VÁLIDO
-                //aquí se crea el objeto
-                Producto amc_jvo_prod = new Producto();
-                amc_jvo_prod.setNom(prod);
-                amc_jvo_prod.setDesc(desc);
-                amc_jvo_prod.setTipo(tipo);
-                amc_jvo_prod.setCategoria(categoria);
-                amc_jvo_prod.setPrecio(tmp_jvf_precio);
-                amc_jvo_prod.setCant(tmp_jvi_cant);
-                amc_jvo_prod.setDisp(disp_INT);
-                
-                //si existe un c_i_clave, modificarlo
-                if(in_jvs_modificar != null && !in_jvs_modificar.isEmpty()){
-                    int tmp_jvi_modificar = Integer.parseInt(in_jvs_modificar);
-                    System.out.println("Se modificar[a el sig prod> " + tmp_jvi_modificar);
-                    
-                    String consulta_BD = "SELECT c_i_clave FROM o_producto WHERE c_i_clave = " + tmp_jvi_modificar;
-                    ResultSet resultado = ConectorDB.consultar_BD(consulta_BD, conexion);
-                    
-                    boolean existe_PROD = false;
-                    //modificar la primera coincidencia
-                    if(resultado.next()) {
-                        existe_PROD = true;
-                        
-                        String update_BD = "UPDATE o_producto "
-                                            + "SET n_v_nombre = '" + prod + "', d_v_cant = " + tmp_jvi_cant + ", d_v_precio = " + tmp_jvf_precio + ", d_v_desc = '" + desc + "', d_v_tipo = '" + tipo + "', d_v_disp = " + disp_INT + ", d_v_catego = '" + categoria + "' "
-                                            + "WHERE c_i_clave = " + resultado.getString("c_i_clave");
-                        int update = ConectorDB.accion_BD(update_BD, conexion);
-
-                        if(update > 0){
-                            System.out.println("exito update");
-                        }
-                    }
-                    if(!existe_PROD){
-                        System.out.println("No existe el producto a modificar");
-                    }
-                } else {
-                    // Agregarlo a la BASE si no existe
-                    String insertar_BD = "insert into o_producto (c_i_usu,n_v_nombre,d_v_cant,d_v_precio,d_v_desc,d_v_tipo,d_v_disp,d_v_catego)" + 
-                                            "values ('" + usuID_BD + "','" + prod + "','" + tmp_jvi_cant + "','" + tmp_jvf_precio + "','" + desc + "','" + tipo + "','" + disp_INT + "','" + categoria + "');";
-                    int insertar = ConectorDB.accion_BD(insertar_BD, conexion);
-                    if(insertar > 0){
-                        System.out.println("exito registro");
-                    }
-                }
-            } else {
-%>
-                <script>   
-                    $(function(){ 
-                        UIkit.modal('#numerico-invalido').show();
-                    });	
-                </script>     
-<%
-            }
-        }
-    }
-
-    // codigo para borrar producto de la base
-    if(in_jvs_borrar != null && !in_jvs_borrar.isEmpty()){
-        int tmp_jvi_borrar = Integer.parseInt(in_jvs_borrar);
-
-        String sql = "delete from o_producto where c_i_clave = " + tmp_jvi_borrar;
-        int borrar = ConectorDB.accion_BD(sql, conexion);
-
-        if(borrar > 0){
-            System.out.println("exito al eliminar.");
-        }
-    }
-%>
-  
-    <h2 class='uk-text-bold'><span class='uk-text-stroke'>Pro</span>ductos</h2>
-    <div class="uk-overflow-auto">
-        <table class="uk-table uk-table-striped uk-table-small uk-table-justify uk-margin-medium-bottom">
-            <thead>
-                <tr>
-                    <th class='uk-text-center uk-text-secondary'>Nombre</th>
-                    <th class='uk-text-center uk-text-secondary'>Cantidad</th>
-                    <th class='uk-text-center uk-text-secondary'>Precio</th>
-                    <th class='uk-text-center uk-text-secondary'>Descripción</th>
-                    <th class='uk-text-center uk-text-secondary'>Tipo</th>
-                    <th class='uk-text-center uk-text-secondary'>Disponible</th>
-                    <th class='uk-text-center uk-text-secondary'>Categoría</th>
-                    <th class='uk-text-center uk-text-success'>Editar</th>
-                    <th class='uk-text-center uk-text-danger'>Borrar</th>
-                </tr>
-            </thead>
-            <tbody>
+        <h2 class='uk-text-bold'><span class='uk-text-stroke'>Pro</span>ductos</h2>
+        <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-striped uk-table-small uk-table-justify uk-margin-medium-bottom">
+                <thead>
+                    <tr>
+                        <th class='uk-text-center uk-text-secondary'>Nombre</th>
+                        <th class='uk-text-center uk-text-secondary'>Cantidad</th>
+                        <th class='uk-text-center uk-text-secondary'>Precio</th>
+                        <th class='uk-text-center uk-text-secondary'>Descripción</th>
+                        <th class='uk-text-center uk-text-secondary'>Tipo</th>
+                        <th class='uk-text-center uk-text-secondary'>Disponible</th>
+                        <th class='uk-text-center uk-text-secondary'>Categoría</th>
+                        <th class='uk-text-center uk-text-secondary'>Tiendas</th>
+                        <th class='uk-text-center uk-text-success'>Editar</th>
+                        <th class='uk-text-center uk-text-danger'>Borrar</th>
+                    </tr>
+                </thead>
+                <tbody>
 <%  
-    try {
-        ResultSet resultado = ConectorDB.consultar_BD("SELECT * FROM o_producto WHERE c_i_usu = " + usuID_BD ,conexion);
-
-        boolean tieneProd_USU = false;
-        while (resultado.next()) {
-                tieneProd_USU = true;
-                
-                String ID_PROD = resultado.getString("c_i_clave"), /// porque ahorra tiempo de procesamiento
-                nom_PROD = resultado.getString("n_v_nombre"),
-                cant_PROD = resultado.getString("d_v_cant"),
-                precio_PROD = resultado.getString("d_v_precio"),
-                tipo_PROD = resultado.getString("d_v_tipo"),
-                desc_PROD = resultado.getString("d_v_desc"),
-                disp_PROD = resultado.getString("d_v_disp"),
-                catego_PROD = resultado.getString("d_v_catego");
-
-                int cant_NUM, disp_NUM, ID_NUM;
-                float precio_NUM = Float.parseFloat(precio_PROD);
-                try{
-                    ID_NUM = Integer.parseInt(ID_PROD);
-                    cant_NUM = Integer.parseInt(cant_PROD);
-                    disp_NUM = Integer.parseInt(disp_PROD);
-                } catch (NumberFormatException nfe){
-                    ID_NUM = -1;
-                    cant_NUM = -1;    
-                    disp_NUM = -1;     
-                }
-
-                System.out.println(resultado.getString(1) + " - " + resultado.getString(2));
-
+        try {
+            ListaProductos lp_USU = ConectorBD.getProdUsu(id_USU, ds_CON);
+            if(lp_USU != null){
+                for(Producto prod_USU: lp_USU.getProds()){
 %>
-                <tr>
-                    <td class='uk-text-center'><%= nom_PROD %></td>
-                    <td class='uk-text-center'><%= cant_NUM %></td>
-                    <td class='uk-text-center'>$<%= precio_NUM %> MXN</td>
-                    <td class='uk-table-expand'><%= desc_PROD %></td>
-                    <td class='uk-text-center'><%= tipo_PROD %></td>
-                    <td class='uk-text-center'>
+                    <tr>
+                        <td class='uk-text-center'><%= prod_USU.getNom() %></td>
+                        <td class='uk-text-center'><%= prod_USU.getCant() %></td>
+                        <td class='uk-text-center'>$<%= prod_USU.getPrecio() %> MXN</td>
+                        <td class='uk-table-expand'><%= prod_USU.getDesc() %></td>
+                        <td class='uk-text-center'><%= prod_USU.getTipo() %></td>
+                        <td class='uk-text-center'>
 <%
-                if(disp_NUM == 1){
+                    if(prod_USU.getDisp() == 1){
 %>              
-                    <input class="uk-checkbox tabla" type="checkbox" disabled checked>
+                        <input class="uk-checkbox tabla" type="checkbox" disabled checked>
 <%
-                } else {
+                    } else {
 %>
-                    <input class="uk-checkbox tabla" type="checkbox" disabled>
+                        <input class="uk-checkbox tabla" type="checkbox" disabled>
 <%
-                }
+                    }
 %>
-                    </td>
-                    <td class='uk-text-center'><%= catego_PROD %></td>
-                    <td><a class="uk-text-success" uk-icon="icon: pencil" href="javascript:void(0);" onclick="js_FS010(<%= ID_NUM %>,'<%= nom_PROD %>',<%= cant_NUM %>,
-                           <%= precio_NUM %>,'<%= desc_PROD.replace("\n", " ").replace("\r", " ").replace("'", "\\'").replace("\"", "\\\"") %>',
-                                       '<%= tipo_PROD %>',<%= disp_NUM %>,'<%= catego_PROD %>');"></a></td>
-                    <td><a class="uk-text-danger" uk-icon="icon: trash" href="javascript:void(0);" onclick="js_FS009(<%= ID_NUM %>);"></a></td>
-                </tr>
+                        </td>
+                        <td class='uk-text-center'><%= prod_USU.getCategoria() %></td>
+                        <td class='uk-table-expand'>
+<%              
+                    try{
+                        ArrayList<String> al_TND = ConectorBD.getTiendaProd(prod_USU.getId(), ds_CON);
+                        if(al_TND != null){
+                            for(String tienda_PROD:al_TND){
+%>
+                            <span class="uk-badge"><%= tienda_PROD %></span>
+<%                          
+                            }
+                        } else {
+%>
+                            Sin tienda.
+<%                            
+                        }
+                    }catch(SQLException e){
+                        System.err.println("Error en la conexión o consulta: " + e.getMessage());
+                    }
+%>
+                        </td>
+                        <td>
+                            <a class="uk-text-success" uk-icon="icon: pencil" 
+                        href="javascript:void(0);" onclick="
+                        js_FS010(<%= prod_USU.getId() %>,'<%= prod_USU.getNom() %>',
+                        <%= prod_USU.getCant() %>,<%= prod_USU.getPrecio() %>,
+                        '<%= prod_USU.getDesc().replace("\n", " ").replace("\r", " ").replace("'", "\\'").replace("\"", "\\\"") %>',
+                        '<%= prod_USU.getTipo() %>',<%= prod_USU.getDisp() %>,
+                        '<%= prod_USU.getCategoria() %>');">
+                            </a>
+                        </td>
+                        <td>
+                            <a class="uk-text-danger" uk-icon="icon: trash" 
+                            href="javascript:void(0);" onclick="js_FS009(<%= prod_USU.getId() %>);">
+                            </a>
+                        </td>
+                    </tr>
 <%      
-        }
-        if(!tieneProd_USU){
+                }
+            }else{
 %>
-                <tr><td colspan="9"><p>Aún no se registra ningún producto.</p></td></tr>       
-<%      }
-    } catch (SQLException e) {
-        System.err.println("Error en la conexión o consulta: " + e.getMessage());
+                <tr><td colspan="10"><p>Aún no se registra ningún producto.</p></td></tr> 
+<%
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en la conexión o consulta: " + e.getMessage());
+        }
+%>
+                </tbody>
+            </table>
+        </div>
+<%
+    } else {
+%>
+        <p>No hay sesion iniciada.</p>
+<%
     }
 %>
-            </tbody>
-        </table>
-    </div>

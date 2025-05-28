@@ -48,9 +48,9 @@
                 for(Producto prod_USU: lp_USU.getProds()){
 %>
                     <tr>
-                        <td class='uk-text-center'><%= prod_USU.getNom() %></td>
+                        <td class='uk-table-expand uk-text-center'><%= prod_USU.getNom() %></td>
                         <td class='uk-text-center'><%= prod_USU.getCant() %></td>
-                        <td class='uk-text-center'>$<%= prod_USU.getPrecio() %> MXN</td>
+                        <td class='uk-table-expand uk-text-center'>$<%= prod_USU.getPrecio() %> MXN</td>
                         <td class='uk-table-expand'><%= prod_USU.getDesc() %></td>
                         <td class='uk-text-center'><%= prod_USU.getTipo() %></td>
                         <td class='uk-text-center'>
@@ -89,17 +89,12 @@
                         </td>
                         <td>
                             <a class="uk-text-success" uk-icon="icon: pencil" 
-                        href="javascript:void(0);" onclick="
-                        js_FS010(<%= prod_USU.getId() %>,'<%= prod_USU.getNom() %>',
-                        <%= prod_USU.getCant() %>,<%= prod_USU.getPrecio() %>,
-                        '<%= prod_USU.getDesc().replace("\n", " ").replace("\r", " ").replace("'", "\\'").replace("\"", "\\\"") %>',
-                        '<%= prod_USU.getTipo() %>',<%= prod_USU.getDisp() %>,
-                        '<%= prod_USU.getCategoria() %>');">
+                        href="javascript:void(0);" onclick="js_formProd(js_updateProd(<%= prod_USU.getId() %>),js_inpDat);">
                             </a>
                         </td>
                         <td>
                             <a class="uk-text-danger" uk-icon="icon: trash" 
-                            href="javascript:void(0);" onclick="js_FS009(<%= prod_USU.getId() %>);">
+                            href="javascript:void(0);" onclick="js_delProd(<%= prod_USU.getId() %>,js_resDel);">
                             </a>
                         </td>
                     </tr>

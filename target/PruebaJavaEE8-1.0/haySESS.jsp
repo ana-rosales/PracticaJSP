@@ -2,12 +2,11 @@
         com.apro.comercio.Usuario"%>
 <%
     //Intenta obtener usuario de la sesion.
-    Usuario usu_OBJ = (Usuario) session.getAttribute("usu_SESS");
+    Object usu_OBJ = session.getAttribute("usu_SESS");
     
     //Variable para almacenar el resultado de validacion.
     int haySess_RES;    
     if(usu_OBJ != null){
-    
         System.out.println("Hay sesion");
         haySess_RES = 1;
     } else {

@@ -101,7 +101,7 @@ public class APConnection implements Connection {
      */
     @Override
     public synchronized void close() throws SQLException {
-        System.out.println("Intenta cerrar");
+        System.out.println("/*Intenta cerrar*/");
         if(this.isEdo_CON()){
             /**
             * Devuelve al pool si el pool aun no está lleno y si la conexion aun

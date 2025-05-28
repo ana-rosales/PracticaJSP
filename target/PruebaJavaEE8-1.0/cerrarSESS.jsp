@@ -2,7 +2,7 @@
         com.apro.comercio.Usuario"%>
 <%
     //Intenta obtener usuario de la sesion.
-    Usuario usu_OBJ = (Usuario) session.getAttribute("usu_SESS");
+    Object usu_OBJ = session.getAttribute("usu_SESS");
     
     //estado de cerrar sesion
     int edoCerrar_SESS = 1;

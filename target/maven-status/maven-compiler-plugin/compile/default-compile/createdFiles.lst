@@ -1,4 +1,5 @@
 com\apro\comercio\Producto.class
+com\apro\comercio\Tienda.class
 ssocial\inm\pruebajavaee8\JAXRSConfiguration.class
 com\apro\db\APConnection.class
 ssocial\inm\pruebajavaee8\resources\JavaEE8Resource.class

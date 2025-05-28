@@ -6,6 +6,7 @@ package com.apro.db;
 
 import com.apro.comercio.ListaProductos;
 import com.apro.comercio.Producto;
+import com.apro.comercio.Tienda;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -60,6 +61,78 @@ public class ConectorBD {
         }
     }
     
+    /**
+     * Trae un producto segun su identificador.
+     * @param idProd_PARAM
+     * @param ds_PARAM
+     * @return p_RES (objeto con producto).
+     * @throws SQLException 
+     */
+    public static Producto getProducto(int idProd_PARAM, APDataSource ds_PARAM) throws SQLException{
+        //producto
+        Producto p_RES = new Producto();
+        
+        //conexion
+        String qry_BD = "SELECT * FROM o_producto WHERE c_i_prod = " + idProd_PARAM + " AND d_v_edo = 1";
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        ResultSet res_STMT = stmt_CON.executeQuery(qry_BD);
+        
+        boolean existeProd = false;
+        if (res_STMT.next()) {
+            existeProd = true;
+            String ID_PROD = res_STMT.getString("c_i_prod"); /// integer porque ahorra tiempo de procesamiento
+            String nom_PROD = res_STMT.getString("n_v_nombre");
+            String cant_PROD = res_STMT.getString("d_v_cant");
+            String precio_PROD = res_STMT.getString("d_v_precio");
+            String tipo_PROD = res_STMT.getString("d_v_tipo");
+            String desc_PROD = res_STMT.getString("d_v_desc");
+            String disp_PROD = res_STMT.getString("d_v_disp");
+            String catego_PROD = res_STMT.getString("d_v_catego");
+
+            int cant_NUM, disp_NUM, ID_NUM;
+            float precio_NUM = Float.parseFloat(precio_PROD);
+            
+            try{
+                ID_NUM = Integer.parseInt(ID_PROD);
+                cant_NUM = Integer.parseInt(cant_PROD);
+                disp_NUM = Integer.parseInt(disp_PROD);
+            } catch (NumberFormatException nfe){
+                ID_NUM = -1;
+                cant_NUM = -1;    
+                disp_NUM = -1;     
+            }
+            
+            p_RES.setId(ID_NUM);
+            p_RES.setNom(nom_PROD);
+            p_RES.setCant(cant_NUM);
+            p_RES.setPrecio(precio_NUM);
+            p_RES.setTipo(tipo_PROD);
+            p_RES.setDesc(desc_PROD);
+            p_RES.setDisp(disp_NUM);
+            p_RES.setCategoria(catego_PROD);
+            
+        }
+        
+        con_POOL.close();
+        stmt_CON.close();
+        res_STMT.close();
+        
+        if(!existeProd){
+            return null;
+        } else {
+            return p_RES;
+        }   
+    }
+    
+    /**
+     * Trae los productos de un usuario.
+     * 
+     * @param id_PARAM
+     * @param ds_PARAM
+     * @return
+     * @throws SQLException 
+     */
     public static ListaProductos getProdUsu(int id_PARAM, APDataSource ds_PARAM) throws SQLException{
         
         //lista
@@ -121,6 +194,14 @@ public class ConectorBD {
         }     
     }
     
+    /**
+     * Trae tiendas de un producto en especifico.
+     * 
+     * @param idProd_PARAM
+     * @param ds_PARAM
+     * @return
+     * @throws SQLException 
+     */
     public static ArrayList<String> getTiendaProd(int idProd_PARAM, APDataSource ds_PARAM) throws SQLException{
         
         //la lista
@@ -149,5 +230,123 @@ public class ConectorBD {
             return al_TND;
         }
     }
-
+    
+    /**
+     * Trae todas las tiendas registradas en BD.
+     * @param ds_PARAM
+     * @return
+     * @throws SQLException 
+     */
+    public static ArrayList<Tienda> getTiendas(APDataSource ds_PARAM) throws SQLException{
+        //la lista
+        ArrayList<Tienda> al_TND = new ArrayList<>();
+        
+        //conexion
+        String qry_BD = "SELECT c_i_tienda,n_v_nom FROM c_tienda";
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        ResultSet res_STMT = stmt_CON.executeQuery(qry_BD);
+        
+        boolean hayTiendas = false;
+        while (res_STMT.next()) {
+            hayTiendas = true;
+            Tienda tnd_BD = new Tienda();
+            tnd_BD.setId_TND(Integer.parseInt(res_STMT.getString("c_i_tienda")));
+            tnd_BD.setNom_TND(res_STMT.getString("n_v_nom"));
+            
+            al_TND.add(tnd_BD);
+        }
+        
+        con_POOL.close();
+        stmt_CON.close();
+        res_STMT.close();
+        
+        if(!hayTiendas){
+            return null;
+        } else {
+            return al_TND;
+        }
+    }
+    
+    public static int delProdMast(int idProd_PARAM, APDataSource ds_PARAM) throws SQLException{
+        //conexion
+        String qry_BD = "UPDATE o_producto SET d_v_edo = 0 WHERE c_i_prod = " + idProd_PARAM;
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        int del_STMT = stmt_CON.executeUpdate(qry_BD);
+        
+        con_POOL.close();
+        stmt_CON.close();
+        
+        if(del_STMT < 0){
+            return -1;
+        } else {
+            return del_STMT;
+        }
+    }
+    
+    public static int delProdDet(int idProd_PARAM, APDataSource ds_PARAM) throws SQLException{
+        //conexion
+        String qry_BD = "UPDATE d_producto SET d_v_edo = 0 WHERE c_i_prod = " + idProd_PARAM;
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        int del_STMT = stmt_CON.executeUpdate(qry_BD);
+        
+        con_POOL.close();
+        stmt_CON.close();
+        
+        if(del_STMT < 0){
+            return -1;
+        } else {
+            return del_STMT;
+        }
+    }
+    
+    public static int updProdMast(
+            Producto prod_PARAM, APDataSource ds_PARAM) throws SQLException{
+        //conexion
+        String qry_BD = "UPDATE o_producto "
+        + "SET n_v_nombre = '" + prod_PARAM.getNom() + "', d_v_cant = " + prod_PARAM.getCant()
+        + ", d_v_precio = " + prod_PARAM.getPrecio() + ", d_v_desc = '" + prod_PARAM.getDesc()
+        + "', d_v_tipo = '" + prod_PARAM.getTipo() + "', d_v_disp = " + prod_PARAM.getDisp()
+        + ", d_v_catego = '" + prod_PARAM.getCategoria() + "' "
+        + "WHERE c_i_prod = " + prod_PARAM.getId();
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        int del_STMT = stmt_CON.executeUpdate(qry_BD);
+        
+        con_POOL.close();
+        stmt_CON.close();
+        
+        if(del_STMT < 0){
+            return -1;
+        } else {
+            return del_STMT;
+        }
+    }
+    
+    public static int insProdMast(
+            int id_PARAM, Producto prod_PARAM, APDataSource ds_PARAM) throws SQLException{
+        //conexion
+        String qry_BD = "insert into o_producto"
+        + "(c_i_usu,n_v_nombre,d_v_cant,d_v_precio,d_v_desc,d_v_tipo,d_v_disp,d_v_catego) "
+        + "values ('" + id_PARAM + "','" + prod_PARAM.getNom() + "','"
+        + prod_PARAM.getCant() + "','" + prod_PARAM.getPrecio() + "','"
+        + prod_PARAM.getDesc() + "','" + prod_PARAM.getTipo() + "','"
+        + prod_PARAM.getDisp() + "','" + prod_PARAM.getCategoria() + "');";
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        int del_STMT = stmt_CON.executeUpdate(qry_BD);
+        
+        con_POOL.close();
+        stmt_CON.close();
+        
+        if(del_STMT < 0){
+            return -1;
+        } else {
+            return del_STMT;
+        }
+    }
+    
+    
 }

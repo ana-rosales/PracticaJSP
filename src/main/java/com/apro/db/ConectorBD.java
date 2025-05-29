@@ -209,7 +209,8 @@ public class ConectorBD {
         
         //conexion
         String qry_BD = "SELECT t.n_v_nom FROM negocio.c_tienda t LEFT JOIN negocio.d_producto p "
-                    + "on(t.c_i_tienda = p.c_i_tienda) WHERE p.c_i_prod = " + idProd_PARAM;
+        + "on(t.c_i_tienda = p.c_i_tienda) WHERE p.c_i_prod = " + idProd_PARAM
+        + " AND p.d_v_edo = 1;";
         APConnection con_POOL = ds_PARAM.getConnection();
         Statement stmt_CON = con_POOL.createStatement();
         ResultSet res_STMT = stmt_CON.executeQuery(qry_BD);
@@ -268,7 +269,8 @@ public class ConectorBD {
         }
     }
     
-    public static int delProdMast(int idProd_PARAM, APDataSource ds_PARAM) throws SQLException{
+    public static int delProdMast(
+            int idProd_PARAM, APDataSource ds_PARAM) throws SQLException{
         //conexion
         String qry_BD = "UPDATE o_producto SET d_v_edo = 0 WHERE c_i_prod = " + idProd_PARAM;
         APConnection con_POOL = ds_PARAM.getConnection();
@@ -336,6 +338,86 @@ public class ConectorBD {
         + prod_PARAM.getDisp() + "','" + prod_PARAM.getCategoria() + "');";
         APConnection con_POOL = ds_PARAM.getConnection();
         Statement stmt_CON = con_POOL.createStatement();
+        int in_STMT = stmt_CON.executeUpdate(qry_BD);
+        
+        con_POOL.close();
+        stmt_CON.close();
+        
+        //si fue exitoso el registro se obtiene el id del mismo
+        if(in_STMT > 0){
+            qry_BD = "SELECT LAST_INSERT_ID();";
+            con_POOL = ds_PARAM.getConnection();
+            stmt_CON = con_POOL.createStatement();
+            ResultSet id_STMT = stmt_CON.executeQuery(qry_BD);
+            
+            int id_PROD =-1;
+            
+            boolean hayID = false;
+            if (id_STMT.next()) {
+                hayID = true;
+                id_PROD = id_STMT.getInt(1);
+            }
+
+            con_POOL.close();
+            stmt_CON.close();
+            id_STMT.close();
+
+            if(!hayID){
+                return -1;
+            } else {
+                return id_PROD;
+            }
+        } else {
+            return -1;
+        }
+    }
+    
+    /**
+     * Trae el id de tienda de las tiendas
+     * de un producto en especifico.
+     * 
+     * @param idProd_PARAM
+     * @param ds_PARAM
+     * @return 
+     * @throws SQLException 
+     */
+    public static ArrayList<Integer> getTiendaIDProd(
+            int idProd_PARAM, APDataSource ds_PARAM) throws SQLException{
+        
+        //la lista
+        ArrayList<Integer> al_TND = new ArrayList<>();
+        
+        //conexion
+        String qry_BD = "SELECT c_i_tienda FROM d_producto "
+        + "WHERE c_i_prod = " + idProd_PARAM;
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        ResultSet res_STMT = stmt_CON.executeQuery(qry_BD);
+        
+        boolean hayTiendas = false;
+        while (res_STMT.next()) {
+            hayTiendas = true;
+            al_TND.add(res_STMT.getInt(1));
+        }
+        
+        con_POOL.close();
+        stmt_CON.close();
+        res_STMT.close();
+        
+        if(!hayTiendas){
+            return null;
+        } else {
+            return al_TND;
+        }
+    }
+    
+    public static int delDetDet(
+            int idProd_PARAM, int idTnd_PARAM, APDataSource ds_PARAM) throws SQLException {
+        //conexion
+        String qry_BD = "UPDATE d_producto SET d_v_edo = 0 WHERE c_i_prod = " + idProd_PARAM
+        + " AND c_i_tienda = " + idTnd_PARAM;
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
         int del_STMT = stmt_CON.executeUpdate(qry_BD);
         
         con_POOL.close();
@@ -348,5 +430,41 @@ public class ConectorBD {
         }
     }
     
+    public static int setDetalle(
+            int idProd_PARAM, int idTnd_PARAM, APDataSource ds_PARAM) throws SQLException{
+        //conexion
+        String qry_BD = "insert into d_producto (c_i_prod,c_i_tienda) "
+        + "values ('" + idProd_PARAM + "','" + idTnd_PARAM + "');";
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        int det_STMT = stmt_CON.executeUpdate(qry_BD);
+        
+        con_POOL.close();
+        stmt_CON.close();
+        
+        if(det_STMT < 0){
+            return -1;
+        } else {
+            return det_STMT;
+        }
+    }
     
+    public static int setDetDet(
+            int idProd_PARAM, int idTnd_PARAM, APDataSource ds_PARAM) throws SQLException {
+        //conexion
+        String qry_BD = "UPDATE d_producto SET d_v_edo = 1 WHERE c_i_prod = " + idProd_PARAM
+        + " AND c_i_tienda = " + idTnd_PARAM;
+        APConnection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        int set_STMT = stmt_CON.executeUpdate(qry_BD);
+        
+        con_POOL.close();
+        stmt_CON.close();
+        
+        if(set_STMT < 0){
+            return -1;
+        } else {
+            return set_STMT;
+        }
+    }
 }

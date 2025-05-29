@@ -1,3 +1,4 @@
+<%@page import="java.util.ArrayList"%>
 <%@page import="com.apro.comercio.Usuario"%>
 <%@page import="java.sql.Statement"%>
 <%@page import="com.apro.db.APConnection"%>
@@ -41,12 +42,12 @@
         tienda = tienda.replace("[", "");
         tienda = tienda.replace("]", "");
         String[] jsElements = tienda.split(","); // Separar los elementos por comas
-        int[] tnd_ARR = new int[jsElements.length]; // Crear un arreglo de Java
+        ArrayList<Integer> tnd_ARR = new ArrayList<>(); //arraylist de tiendas seleccionadas
 
         //si hay tiendas seleccionadas, se convierte a numero.
         if(jsElements.length > 0 && !jsElements[0].equals("")){
             for (int i = 0; i < jsElements.length; i++) {
-                tnd_ARR[i] = Integer.parseInt(jsElements[i].trim()); // Convertir a Integer y eliminar espacios
+                tnd_ARR.add(Integer.parseInt(jsElements[i].trim())); // Convertir a Integer y eliminar espacios
             }
         }
         
@@ -91,23 +92,50 @@
                     amc_jvo_prod.setId(prodInt_MODIF);
                         
                     try{
+                        // actualizar maestro
                         int resUpdMtr = ConectorBD.updProdMast(amc_jvo_prod, ds_CON);
                         if(resUpdMtr > 0){
                             System.out.println("exito al actualizar.");
                         }
-                        //se elimina el atributo con el id, ya no es necesario.
-                        session.removeAttribute("idProd_MODIF");
                         
-                        //si hay tiendas, insertar los detalles para este producto.
-                        /*if(jsElements.length > 0 && !jsElements[0].equals("")){
-                            for(int i = 0; i < tnd_ARR.length ; i++){
-                                try{
-                                    
-                                } catch (SQLException e) {
-                                    System.err.println("Error en la conexión o consulta: " + e.getMessage());
+                        // actualizar detalles
+                        try{
+                            //obtener todos los detalles existentes del producto.
+                            ArrayList<Integer> tnd_PROD = ConectorBD.getTiendaIDProd(prodInt_MODIF, ds_CON);
+                            if(tnd_PROD != null){
+                                //recorrerlos
+                                for(Integer tnd_ID: tnd_PROD){
+                                    //si c_i_tienda NO esta en tnd_ARR d_v_edo BORRADO LOGICO DE DETALLE
+                                    if(!tnd_ARR.contains(tnd_ID)){
+                                        int detDetDet = ConectorBD.delDetDet(prodInt_MODIF, tnd_ID, ds_CON);
+                                        if(detDetDet > 0){
+                                            System.out.println("exito al eliminar.");
+                                        }
+                                    // si c_i_tienda ESTA en tnd_ARR RESTAURAR ESTADO DE BORRADO LOGICO
+                                    } else {
+                                        tnd_ARR.remove(tnd_ID);
+                                        int setDetDet = ConectorBD.setDetDet(prodInt_MODIF, tnd_ID, ds_CON);
+                                        if(setDetDet > 0){
+                                            System.out.println("exito al eliminar.");
+                                        }
+                                    }
                                 }
                             }
-                        }*/
+                            //crear el detalle para las c_i_tienda restantes en tnd_ARR
+                            if(!tnd_ARR.isEmpty()){
+                                for(Integer tnd_ID: tnd_ARR){
+                                    int set_DET = ConectorBD.setDetalle(prodInt_MODIF, tnd_ID, ds_CON);
+                                    if(set_DET > 0){
+                                        System.out.println("exito registro");
+                                    }
+                                }
+                            }
+                        } catch (SQLException e) {
+                            System.err.println("Error en la conexión o consulta: " + e.getMessage());
+                        }
+                        
+                        //se elimina el atributo con el id, ya no es necesario.
+                        session.removeAttribute("idProd_MODIF");
                     } catch (SQLException e) {
                         System.err.println("Error en la conexión o consulta: " + e.getMessage());
                     }
@@ -115,14 +143,27 @@
                 } else {
                     // Agregarlo a la BASE si no existe
                     try{
-                        int insProd = ConectorBD.insProdMast(
+                        int idProd = ConectorBD.insProdMast(
                         usu_USU.getId_USU(), amc_jvo_prod, ds_CON);
-                        if(insProd > 0){
+                        
+                        if(idProd >= 0){
                             System.out.println("exito registro");
+                        }
+                        
+                        //crear el detalle para las c_i_tienda en tnd_ARR
+                        if(!tnd_ARR.isEmpty()){
+                            for(Integer tnd_ID: tnd_ARR){
+                                int set_DET = ConectorBD.setDetalle(idProd, tnd_ID, ds_CON);
+                                if(set_DET > 0){
+                                    System.out.println("exito registro");
+                                }
+                            }
                         }
                     } catch (SQLException e) {
                         System.err.println("Error en la conexión o consulta: " + e.getMessage());
                     }
+                    
+                    
                 }
             } else {
                 valModif = 2;

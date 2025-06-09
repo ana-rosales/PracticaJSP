@@ -45,7 +45,6 @@ function js_haySess(callback,callback2){
  */
 function js_resHayReload(){
     var res_HAY = parseInt($("#haySess").val());
-    console.log("se recarga pagina y se obtiene si hay sesion: " + res_HAY);
     if(res_HAY == 1){
         open_SESS = true;
     } else {
@@ -118,9 +117,12 @@ function js_traerUsu(){
  * sesion iniciada. Como parametro se le indica si 
  * se va a insertar, modificar o eliminar un producto.
  */
-function js_traerProd(){    
-    $("#r_infoPROD").empty().html('<span class="uk-margin-small-right" uk-spinner="ratio: 3"></span>');
-    $.post("panelProductos.jsp",{},(data)=>{
+function js_traerProd(pag,ord){
+    var v_01 = pag;
+    var v_02 = ord;
+    $("#r_infoPROD").empty().html(
+            '<span class="uk-margin-small-right" uk-spinner="ratio: 3"></span>');
+    $.post("panelProductos.jsp",{no_PAG: v_01,tipo_ORD: v_02},(data)=>{
         UIkit.modal('#r_formPROD').hide();
         $("#r_infoPROD").empty().html(data);
     });
@@ -177,49 +179,18 @@ function js_resModif(){
  * Funcion callback para inicializar los inputs
  * con los valores a actualizar en caso de UPDATE.
  */
-function js_formProd(callback,callback2){
-    console.log("invocar form");
-    $.post("producto.jsp",{},(data)=>{
+function js_formProd(id_PARAM){
+    var v_01 = id_PARAM;
+    $("#r_espera").show();
+    $("#r_pagina").hide();
+    $.post("producto.jsp",{idProd: id_PARAM},(data)=>{
         $("#r_formPROD").empty().html(data);
         UIkit.modal('#r_formPROD').show();
-    }).then(callback).then(callback2);
-}
-
-/**
- * Callback busca un producto cuyos datos se actualizaran.
- */
-function js_updateProd(id_PARAM){
-    var v_01 = id_PARAM;
-    
-    $.post("obtPROD.jsp",{idProd: v_01},(data)=>{
-        $("#r_RESVAL").empty().html(data);
     });
+    $("#r_espera").hide();
+    $("#r_pagina").show();
 }
 
-/**
- * Callback escribe los datos del producto en el form.
- */
-function js_inpDat(){
-    //datos respuesta
-        var nom_PROD = $("#nomProd").val();
-        var cant_PROD = $("#cantProd").val();
-        var precio_PROD = $("#precioProd").val();
-        var desc_PROD = $("#descProd").val();
-        var tipo_PROD = $("#tipoProd").val();
-        var disp_PROD = $("#dispProd").val();
-        var catego_PROD = $("#categoProd").val();
-        
-        //datos form
-        $('#prod').val(nom_PROD);
-        $('#cant').val(cant_PROD);
-        $('#precio').val(precio_PROD);
-        $('#desc').val(desc_PROD);
-        $('input[name="tipo"][value="'+tipo_PROD+'"]').prop('checked', true);
-        $('#disp').prop('checked', disp_PROD == 1);
-        $('#categoria').val(catego_PROD);
-        $('#crearProducto_TIT').empty().html("Modificar producto.");
-        $('#crearProducto_BTN').empty().html("Modificar producto.");
-}
 
 /**
  * Pasa al servidor el id del producto 
@@ -288,9 +259,8 @@ function js_FS000(){
  */
 $(document).ready(()=>{
     //se verifica si hay una sesion antes de cargar datos.
-    
     js_haySess(js_resHayReload,()=>{
-        console.log("hay sesion: " + open_SESS);
+        $("#r_espera").hide();
         if(open_SESS){
             js_traerUsu();
             js_traerProd();

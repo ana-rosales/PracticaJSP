@@ -1,24 +1,40 @@
-<%@page import="java.util.ArrayList"%>
-<%@page import="com.apro.comercio.Usuario"%>
-<%@page import="java.sql.Statement"%>
-<%@page import="com.apro.db.APConnection"%>
-<%@page import="com.apro.db.APDataSource"%>
-<%@page contentType="text/html" pageEncoding="UTF-8" %>
-<%@page import="
+<%@page import="com.apro.comercio.ListaProductos"%>
+<%@page contentType="text/html" pageEncoding="UTF-8" import="
         com.apro.comercio.Producto,com.apro.db.ConectorBD,java.sql.SQLException,
-        java.sql.ResultSet,java.sql.Connection,java.util.Arrays"%>
+        java.sql.ResultSet,java.sql.Connection,java.util.Arrays,
+        com.apro.db.APDataSource,java.sql.Statement,com.apro.comercio.Usuario,
+        java.util.ArrayList,java.util.List,com.apro.comercio.Tienda"%>
+<%!
+    public int updProdMast(
+            Producto prod_PARAM, APDataSource ds_PARAM) throws SQLException{
+        //conexion
+        String qry_BD = "UPDATE o_producto "
+        + "SET n_v_nombre = '" + prod_PARAM.getNom() + "', d_v_cant = " + prod_PARAM.getCant()
+        + ", d_v_precio = " + prod_PARAM.getPrecio() + ", d_v_desc = '" + prod_PARAM.getDesc()
+        + "', d_v_tipo = '" + prod_PARAM.getTipo() + "', d_v_disp = " + prod_PARAM.getDisp()
+        + ", d_v_catego = '" + prod_PARAM.getCategoria() + "' "
+        + "WHERE c_i_prod = " + prod_PARAM.getId();
+        Connection con_POOL = ds_PARAM.getConnection();
+        Statement stmt_CON = con_POOL.createStatement();
+        int del_STMT = stmt_CON.executeUpdate(qry_BD);
+        
+        stmt_CON.close();
+        
+        if(del_STMT < 0){
+            return -1;
+        } else {
+            return del_STMT;
+        }
+    }
+%>
 <%
-    //Obtener el DataSource para consultar.
-    String usu_BD = "root", 
-            pwd_BD = "admin", 
-            base_BD = "negocio", 
-            driver_BD = "org.mariadb.jdbc.Driver",
-            url_BD = "jdbc:mariadb://localhost:3360/";    
-    APDataSource ds_CON = ConectorBD.getDataSource(usu_BD, pwd_BD, base_BD, driver_BD, url_BD);
+    //Obtener el DataSource para consultar.  
+    APDataSource ds_CON = ConectorBD.getDataSource("negocio.properties");
     
     // SESSION
     Object usu_OBJ = session.getAttribute("usu_SESS");
-    Object prod_MODIF = session.getAttribute("idProd_MODIF");
+    Object lp_OBJ = session.getAttribute("lp_SESS");
+    Object prod_OBJ = session.getAttribute("prod_MODIF");
     
     //resultado modif
     int valModif;
@@ -37,7 +53,8 @@
         categoria = request.getParameter("categoria"),
         tienda = request.getParameter("tienda");
         
-        //Convertir arreglo string de javascript a arreglo java
+        //arreglo de tiendas
+        //Convertir arreglo string de javascript a arreglo int java
         tienda = tienda.replaceAll("\"", "");
         tienda = tienda.replace("[", "");
         tienda = tienda.replace("]", "");
@@ -77,65 +94,74 @@
             if(tmp_jvi_cant >= 0 && tmp_jvf_precio >= 0){
                 valModif = 0;
                 //crear objeto Producto.
-                Producto amc_jvo_prod = new Producto();
-                amc_jvo_prod.setNom(prod);
-                amc_jvo_prod.setDesc(desc);
-                amc_jvo_prod.setTipo(tipo);
-                amc_jvo_prod.setCategoria(categoria);
-                amc_jvo_prod.setPrecio(tmp_jvf_precio);
-                amc_jvo_prod.setCant(tmp_jvi_cant);
-                amc_jvo_prod.setDisp(disp_INT);
+                Producto prod_NEW = new Producto();
+                prod_NEW.setNom(prod);
+                prod_NEW.setDesc(desc);
+                prod_NEW.setTipo(tipo);
+                prod_NEW.setCategoria(categoria);
+                prod_NEW.setPrecio(tmp_jvf_precio);
+                prod_NEW.setCant(tmp_jvi_cant);
+                prod_NEW.setDisp(disp_INT);
                 
-                //si existe un c_i_prod, actualizar el producto correspondiente
-                if(prod_MODIF != null){
-                    Integer prodInt_MODIF = (Integer) prod_MODIF;
-                    amc_jvo_prod.setId(prodInt_MODIF);
+                //si existe un producto, actualizar el producto correspondiente
+                if(prod_OBJ != null){
+                    Producto prod_MODIF = (Producto) prod_OBJ;
+                    prod_NEW.setId(prod_MODIF.getId());
                         
                     try{
-                        // actualizar maestro
-                        int resUpdMtr = ConectorBD.updProdMast(amc_jvo_prod, ds_CON);
+                        // actualizar maestro en la bd.
+                        int resUpdMtr = updProdMast(prod_NEW, ds_CON);
                         if(resUpdMtr > 0){
                             System.out.println("exito al actualizar.");
                         }
-                        
-                        // actualizar detalles
-                        try{
-                            //obtener todos los detalles existentes del producto.
-                            ArrayList<Integer> tnd_PROD = ConectorBD.getTiendaIDProd(prodInt_MODIF, ds_CON);
-                            if(tnd_PROD != null){
-                                //recorrerlos
-                                for(Integer tnd_ID: tnd_PROD){
-                                    //si c_i_tienda NO esta en tnd_ARR d_v_edo BORRADO LOGICO DE DETALLE
-                                    if(!tnd_ARR.contains(tnd_ID)){
-                                        int detDetDet = ConectorBD.delDetDet(prodInt_MODIF, tnd_ID, ds_CON);
-                                        if(detDetDet > 0){
-                                            System.out.println("exito al eliminar.");
-                                        }
-                                    // si c_i_tienda ESTA en tnd_ARR RESTAURAR ESTADO DE BORRADO LOGICO
-                                    } else {
-                                        tnd_ARR.remove(tnd_ID);
-                                        int setDetDet = ConectorBD.setDetDet(prodInt_MODIF, tnd_ID, ds_CON);
-                                        if(setDetDet > 0){
-                                            System.out.println("exito al eliminar.");
-                                        }
+                        // actualizar detalles en la bd y en lista.
+                        List<Tienda> lt_PROD = prod_MODIF.getTiendas();
+                        if(lt_PROD != null){
+                            //recorrerlos
+                            for(Tienda tnd_PROD: lt_PROD){
+                                //si c_i_tienda NO esta en tnd_ARR d_v_edo BORRADO LOGICO DE DETALLE
+                                if(!tnd_ARR.contains(tnd_PROD.getId_TND())){
+                                    int detDetDet = ConectorBD.delDetDet(
+                                        prod_MODIF.getId(), tnd_PROD.id_TND, ds_CON);
+                                    if(detDetDet > 0){
+                                        System.out.println("exito al eliminar.");
+                                    }
+                                // si c_i_tienda ESTA en tnd_ARR RESTAURAR ESTADO DE BORRADO LOGICO
+                                } else {
+                                    int IX_TND = tnd_ARR.indexOf(tnd_PROD.getId_TND());
+                                    tnd_ARR.remove(IX_TND);
+                                    int setDetDet = ConectorBD.setDetDet(
+                                        prod_MODIF.getId(), tnd_PROD.getId_TND(), ds_CON);
+                                    //en la lista solo se mantiene
+                                    if(setDetDet > 0){
+                                        System.out.println("exito al eliminar.");
                                     }
                                 }
                             }
-                            //crear el detalle para las c_i_tienda restantes en tnd_ARR
-                            if(!tnd_ARR.isEmpty()){
-                                for(Integer tnd_ID: tnd_ARR){
-                                    int set_DET = ConectorBD.setDetalle(prodInt_MODIF, tnd_ID, ds_CON);
-                                    if(set_DET > 0){
-                                        System.out.println("exito registro");
-                                    }
-                                }
-                            }
-                        } catch (SQLException e) {
-                            System.err.println("Error en la conexión o consulta: " + e.getMessage());
                         }
+                        //crear el detalle para las c_i_tienda restantes en tnd_ARR
+                        if(!tnd_ARR.isEmpty()){
+                            for(Integer tnd_ID: tnd_ARR){
+                                int set_DET = ConectorBD.setDetalle(
+                                    prod_MODIF.getId(), tnd_ID, ds_CON);
+                                if(set_DET > 0){
+                                    System.out.println("exito registro");
+                                }
+                            }
+                        }
+                        //actualizar detalles en lista
+                        prod_NEW.setTiendas(ConectorBD.getTiendaProd(prod_MODIF.getId(), ds_CON));
                         
-                        //se elimina el atributo con el id, ya no es necesario.
-                        session.removeAttribute("idProd_MODIF");
+                        //si no hay lista crear una nueva
+                        ListaProductos lp_SESS;
+                        if(lp_OBJ != null){
+                            lp_SESS = (ListaProductos) lp_OBJ;
+                            int IX_MODIF = lp_SESS.indexOf(prod_MODIF);
+                            lp_SESS.set(prod_NEW, IX_MODIF);
+                        } else {
+                            lp_SESS = new ListaProductos(prod_NEW);
+                        }
+                        session.setAttribute("lp_SESS", lp_SESS);
                     } catch (SQLException e) {
                         System.err.println("Error en la conexión o consulta: " + e.getMessage());
                     }
@@ -143,28 +169,47 @@
                 } else {
                     // Agregarlo a la BASE si no existe
                     try{
-                        int idProd = ConectorBD.insProdMast(
-                        usu_USU.getId_USU(), amc_jvo_prod, ds_CON);
+                        prod_NEW.setId(ConectorBD.insProdMast(
+                            usu_USU.getId_USU(), prod_NEW, ds_CON)); //se obtiene el id del nuevo producto
                         
-                        if(idProd >= 0){
+                        if(prod_NEW.getId() >= 0){
                             System.out.println("exito registro");
                         }
+                        System.out.println(
+                            "Id del nuevo producto: " + prod_NEW.getId());
+                        System.out.println(
+                            "Se seleccionaron tiendas: " + !tnd_ARR.isEmpty());
                         
                         //crear el detalle para las c_i_tienda en tnd_ARR
                         if(!tnd_ARR.isEmpty()){
                             for(Integer tnd_ID: tnd_ARR){
-                                int set_DET = ConectorBD.setDetalle(idProd, tnd_ID, ds_CON);
+                                int set_DET = ConectorBD.setDetalle(
+                                prod_NEW.getId(), tnd_ID, ds_CON);
                                 if(set_DET > 0){
                                     System.out.println("exito registro");
                                 }
                             }
                         }
+                        //guardar detalles en lista
+                        prod_NEW.setTiendas(ConectorBD.getTiendaProd(
+                            prod_NEW.getId(), ds_CON));
+                        
+                        //si no hay lista crear una nueva
+                        ListaProductos lp_SESS;
+                        if(lp_OBJ != null){
+                            lp_SESS = (ListaProductos) lp_OBJ;
+                            lp_SESS.add(prod_NEW);
+                        } else {
+                            lp_SESS = new ListaProductos(prod_NEW);
+                        }
+                        session.setAttribute("lp_SESS", lp_SESS);
+                   
                     } catch (SQLException e) {
                         System.err.println("Error en la conexión o consulta: " + e.getMessage());
                     }
-                    
-                    
                 }
+                //se elimina el atributo con el id, ya no es necesario.
+                session.removeAttribute("prod_MODIF");
             } else {
                 valModif = 2;
             }

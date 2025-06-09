@@ -1,20 +1,18 @@
-<%@page import="com.apro.comercio.Usuario"%>
 <%@page contentType="text/html" pageEncoding="UTF-8" import="
         com.apro.db.ConectorBD,java.sql.SQLException,java.sql.ResultSet,
-        com.apro.db.APDataSource, com.apro.db.APConnection,
-        java.sql.Statement"%>
+        com.apro.db.APDataSource, java.sql.Connection,
+        java.sql.Statement,com.apro.comercio.Usuario"%>
 <%! 
     public int validaUsu(String usu_PARAM, String contra_PARAM, APDataSource ds_PARAM){
 
         int ok = -1;
-        String qry_STMT = "SELECT * FROM c_usuario";
+        String qry_STMT = "select * from c_usuario;";
 
         /**
-         * Obtener una conexion del pool del DataSource dentro del 
-         * try-with-resources.
+         * Obtener una conexion del pool del DataSource.
          */
         try{
-            APConnection con_POOL = ds_PARAM.getConnection();
+            Connection con_POOL = ds_PARAM.getConnection();
             Statement stmt_CON = con_POOL.createStatement();
             ResultSet res_QRY = stmt_CON.executeQuery(qry_STMT);
 
@@ -26,7 +24,6 @@
                     ok = Integer.parseInt(res_QRY.getString("c_i_usu"));
                 }
             }
-            con_POOL.close();
             stmt_CON.close();
             res_QRY.close();
         } catch (SQLException e) {
@@ -34,16 +31,10 @@
         }
         return ok;
     }
-//FIN SCRIPLET
 %>
 <%
     //Obtener el DataSource para consultar.
-    String usu_BD = "root", 
-            pwd_BD = "admin", 
-            base_BD = "prueba_jee8", 
-            driver_BD = "org.mariadb.jdbc.Driver",
-            url_BD = "jdbc:mariadb://localhost:3360/";    
-    APDataSource ds_CON = ConectorBD.getDataSource(usu_BD, pwd_BD, base_BD, driver_BD, url_BD);
+    APDataSource ds_CON = ConectorBD.getDataSource("usuarios.properties");
     
     //Obtener los datos encapsulados en el POST.
     String usu_REQ = request.getParameter("nom"),

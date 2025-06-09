@@ -1,8 +1,9 @@
 com\apro\comercio\Producto.class
 com\apro\comercio\Tienda.class
+com\apro\comercio\ListaProductos$2.class
 ssocial\inm\pruebajavaee8\JAXRSConfiguration.class
-com\apro\db\APConnection.class
 ssocial\inm\pruebajavaee8\resources\JavaEE8Resource.class
+com\apro\comercio\ListaProductos$1.class
 com\apro\comercio\ListaProductos.class
 com\apro\comercio\Usuario.class
 com\apro\db\APDataSource.class

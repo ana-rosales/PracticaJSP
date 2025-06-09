@@ -1,8 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.apro.comercio;
+
+import java.util.List;
 
 /**
  *
@@ -12,6 +11,7 @@ public class Producto {
     private String nom,desc,tipo,categoria; //primero declarar estas
     private float precio; //segundo
     private int cant, disp, id;
+    private List<Tienda> tiendas;
 
     public Producto() {
     }
@@ -78,6 +78,14 @@ public class Producto {
 
     public void setDisp(int disp) {
         this.disp = disp;
+    }
+
+    public List<Tienda> getTiendas() {
+        return tiendas;
+    }
+
+    public void setTiendas(List<Tienda> tiendas) {
+        this.tiendas = tiendas;
     }
     
     

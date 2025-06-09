@@ -1,15 +1,10 @@
-<%@page import="java.sql.SQLException"%>
-<%@page import="com.apro.db.ConectorBD"%>
-<%@page import="com.apro.db.APDataSource"%>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="com.apro.comercio.Producto"%>
+<%@page import="com.apro.comercio.ListaProductos"%>
+<%@page contentType="text/html" pageEncoding="UTF-8" import="
+    java.sql.SQLException,com.apro.db.ConectorBD,com.apro.db.APDataSource" %>
 <%
     //Obtener el DataSource para consultar.
-    String usu_BD = "root", 
-            pwd_BD = "admin", 
-            base_BD = "negocio", 
-            driver_BD = "org.mariadb.jdbc.Driver",
-            url_BD = "jdbc:mariadb://localhost:3360/";    
-    APDataSource ds_CON = ConectorBD.getDataSource(usu_BD, pwd_BD, base_BD, driver_BD, url_BD);
+    APDataSource ds_CON = ConectorBD.getDataSource("negocio.properties");
 
     // request
     String idProd_REQ = request.getParameter("idProd");
@@ -17,6 +12,7 @@
     
     // SESSION
     Object usu_OBJ = session.getAttribute("usu_SESS");
+    Object lp_OBJ = session.getAttribute("lp_SESS");
     
     //valor eliminado logico
     int valDel = 1;
@@ -36,6 +32,31 @@
                 System.out.println("exito al eliminar.");
             }
             valDel = 0;
+            //se obtiene el producto de la lista, si no
+            //hubo error al eliminar
+            if(lp_OBJ != null){
+                ListaProductos lp_SESS = (ListaProductos) lp_OBJ;
+                boolean prod_DEL = lp_SESS.deleteWithID(idProd_NUM);
+                session.removeAttribute("lp_SESS");
+                session.setAttribute("lp_SESS", lp_SESS);
+                if(!prod_DEL){
+%>
+                <script>
+                    $(function(){
+                        alert("Error al eliminar.");
+                    });
+                </script>
+<%
+                }
+            } else {
+%>
+                <script>
+                    $(function(){
+                        alert("Error al eliminar.");
+                    });
+                </script>
+<%
+            }
         } catch (SQLException e){            
             System.err.println("Error en la conexión o consulta: " + e.getMessage());
         }

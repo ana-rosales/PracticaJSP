@@ -4,161 +4,43 @@
  */
 package com.apro.db;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Properties;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 /**
- *
+ * Una sola conexion para un data source específico.
  * @author paula
  */
 public class APDataSource implements DataSource{
     
     /**
-     * Pool de conexiones de este DataSource.
+     * Conexion a este DataSource.
      */
-    private final List<APConnection> pool_DS = new ArrayList<>();
+    private Connection con_BD;
     
     /**
-     * Información del DataSource.
+     * Información de la conexion.
      */
-    private String usu_DS, pwd_DS, base_DS, driver_DS, url_DS;
+    private String usu_DS, pwd_DS, driver_DS, url_DS;
     
     /**
-     * Cantidad de conexiones iniciales en el pool.
+     * Objeto properties con configuracion.
      */
-    private int ini_CON = 3;
+    private Properties prop_DS;
     
     /**
-     * Maximo de conexiones que se pueden guardar en el pool.
-     */
-    private int maxIdl_CON = 5;
-    
-    /**
-     * Maximo de conexiones que se pueden prestar.
-     */
-    private int maxBrw_CON = 5;
-    
-    /**
-     * Conexiones prestadas.
-     */
-    private int brw_CON;
-    
-    /**
-     * Tiempo que espera un Thread a que se libere una conexion.
-     * Predeterminado 10 seg en milisegundos.
-     */
-    private long espera_CON = 10000;
-    
-    /**
-     * Veces que se puede prestar una conexion.
-     */
-    private int vidas_CON = 2;
-    
-    /**
-     * Constructor vacio para no cargar objeto.
-     * @throws SQLException
+     * Constructor para data source.
      */
     public APDataSource (){
         
-    }
-    
-    /**
-     * SETTERS Y GETTERS.
-     */
-
-    public int getMaxBrw_CON() {
-        return maxBrw_CON;
-    }
-
-    public void setMaxBrw_CON(int maxBrw_CON) {
-        this.maxBrw_CON = maxBrw_CON;
-    }
-
-    public int getBrw_CON() {
-        return brw_CON;
-    }
-
-    public void setBrw_CON(int brw_CON) {
-        this.brw_CON = brw_CON;
-    }
-
-    public long getEspera_CON() {
-        return espera_CON;
-    }
-
-    public void setEspera_CON(long espera_CON) {
-        this.espera_CON = espera_CON;
-    }
-
-    public int getVidas_CON() {
-        return vidas_CON;
-    }
-
-    public void setVidas_CON(int vidas_CON) {
-        this.vidas_CON = vidas_CON;
-    }
-
-    public String getUsu_DS() {
-        return usu_DS;
-    }
-
-    public void setUsu_DS(String usu_DS) {
-        this.usu_DS = usu_DS;
-    }
-
-    public String getPwd_DS() {
-        return pwd_DS;
-    }
-
-    public void setPwd_DS(String pwd_DS) {
-        this.pwd_DS = pwd_DS;
-    }
-
-    public String getBase_DS() {
-        return base_DS;
-    }
-
-    public void setBase_DS(String base_DS) {
-        this.base_DS = base_DS;
-    }
-
-    public String getDriver_DS() {
-        return driver_DS;
-    }
-
-    public void setDriver_DS(String driver_DS) {
-        this.driver_DS = driver_DS;
-    }
-
-    public String getUrl_DS() {
-        return url_DS;
-    }
-
-    public void setUrl_DS(String url_DS) {
-        this.url_DS = url_DS;
-    }
-
-    public int getIni_CON() {
-        return ini_CON;
-    }
-
-    public void setIni_CON(int ini_CON) {
-        this.ini_CON = ini_CON;
-    }
-
-    public int getMaxIdl_CON() {
-        return maxIdl_CON;
-    }
-
-    public void setMaxIdl_CON(int maxIdl_CON) {
-        this.maxIdl_CON = maxIdl_CON;
     }
     
     /**
@@ -166,45 +48,58 @@ public class APDataSource implements DataSource{
      */
     
     /**
-     * Metodo para cargar el driver indicado.
+     * Carga el driver.
      */
-    public void loadDriver(){
+    public synchronized void loadDriver(){
         try {
-            Class.forName(driver_DS);
+            Class.forName(this.driver_DS);
         } catch (ClassNotFoundException e) {
-            System.err.println("No se encontró el driver MariaDB: " + e.getMessage());
-            return;
+            System.err.println("No se encontró el driver: " + e.getMessage());
         }
     }
     
     /**
-     * Se guarda cierta cantidad de conexiones iniciales en el pool. 
-     * Al instanciar el DataSource.
+     * Obtiene el archivo que almacena las propiedades de
+     * configuracion del DataSource.
+     * 
+     * @param file_PARAM
+     * @throws IOException 
+     */
+    public synchronized void setProperties(String file_PARAM) throws IOException{
+        try(
+            FileInputStream in_PROP = new FileInputStream(file_PARAM)
+        ){
+            this.prop_DS = new Properties();
+            this.prop_DS.load(in_PROP);
+            this.usu_DS = this.prop_DS.getProperty("usu");
+            this.pwd_DS = this.prop_DS.getProperty("pwd");
+            this.driver_DS = this.prop_DS.getProperty("driver");
+            this.url_DS = this.prop_DS.getProperty("url");
+        } catch (IOException ioe){
+            throw new IOException(ioe);
+        }
+        
+    }
+    
+    /**
+     * Crea la conexion con DriverManager.
      * 
      * @throws SQLException 
      */
-    public void init() throws SQLException {
-        for(int i = 0; i < ini_CON; i++){
-            this.getConnection();
+    public synchronized void createConnection() throws SQLException{
+        if(this.usu_DS == "" && this.pwd_DS == ""){
+            this.con_BD = DriverManager.getConnection(this.url_DS);
+        } else {
+            this.con_BD = DriverManager.getConnection(this.url_DS, this.usu_DS, this.pwd_DS);
         }
-        brw_CON = 0;
+        System.out.println("---- Conexion establecida ----");
     }
     
     /**
-     * Devolver la conexion al pool.
-     * @param con_PARAM 
+     * Cierra la conexion.
      */
-    public void releaseConnection(APConnection wrp_PARAM){
-        this.pool_DS.add(wrp_PARAM);
-    }
-    
-    /**
-     * Devolver la cantidad de conexiones guardadas en el pool de este 
-     * DataSource.
-     * @return size de list pool_DS.
-     */
-    public int getSize(){
-        return this.pool_DS.size();
+    public void closeConnection() throws SQLException {
+        this.con_BD.close();
     }
     
     /**
@@ -212,73 +107,15 @@ public class APDataSource implements DataSource{
      */
     
     /**
-     * Busca una conexion en el pool de este DataSource. 
+     * Devuelve la conexion a este data source.
      * 
-     * Si no hay o aun no se llena el pool, crea una nueva conexion con 
-     * DriverManager, almacena la conexion en un envoltorio que se guarda
-     * en el pool.
-     * 
-     * Si existe una conexion y aun no se pasa el limite de conexiones 
-     * prestadas, la trae y disminuye la vida de la conexion.
-     * 
-     * Si se pasó el limite de conexiones, se espera el valor de espera_CON a
-     * que se libere alguna conexion, si no se libera, lanza un error.
-     * 
-     * @return
+     * @return con_BD (Connection)
      * @throws SQLException 
      */
     @Override
-    public APConnection getConnection() throws SQLException {
-        
-        /**
-         * Crea una nueva conexion si está vacío o si aun no se llena el pool.
-         */
-        if(pool_DS.isEmpty() || pool_DS.size() < this.maxIdl_CON){
-            Connection con_BD = DriverManager.getConnection(url_DS, usu_DS, pwd_DS);
-            
-            APConnection wrp_CON = new APConnection();
-            wrp_CON.setVal_CON(con_BD);
-            wrp_CON.setDs_CON(this);
-            wrp_CON.setVidas_CON(this.vidas_CON);
-            wrp_CON.setEdo_CON(false);
-            
-            pool_DS.add(wrp_CON);
-        }
-        
-        /**
-         * Si el maximo de prestadas de cumple, el hilo tiene que esperar el
-         * tiempo de espera_CON a que se libere una conexion.
-         */
-        synchronized (this) {
-            long ini_ESP = System.currentTimeMillis();
-            long restante_ESP = espera_CON;
-
-            while (brw_CON >= maxBrw_CON && restante_ESP > 0) {
-                try {
-                    wait(restante_ESP);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                    throw new SQLException("Interrumpido mientras esperaba una conexión disponible.");
-                }
-                restante_ESP = espera_CON - (System.currentTimeMillis() - ini_ESP);
-            }
-        }
-        
-        /**
-        * Verificar cantidad maxima de prestadas. Si aun no se llega se presta,
-        * si no espera y lanza error.
-        */
-        if(this.brw_CON < this.maxBrw_CON){
-            APConnection wrp_CON = pool_DS.remove(pool_DS.size()-1);
-            wrp_CON.setVidas_CON(wrp_CON.getVidas_CON() - 1);
-            wrp_CON.setEdo_CON(true);
-            this.brw_CON = this.brw_CON + 1;
-            return wrp_CON;
-        } else {
-            throw new SQLException("Tiempo de espera agotado. No hay conexiones disponibles.");
-        }
+    public synchronized Connection getConnection() {
+        return this.con_BD;
     }
-    
     
     /**
      * METODOS NO IMPLEMENTADOS.

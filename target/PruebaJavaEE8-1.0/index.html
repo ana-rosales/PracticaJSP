@@ -11,94 +11,103 @@
 
     </head>
     <body>
-        <div>
-        <!-- Contenido pagina -->
-            <div class="uk-divider"></div>
-            <div id="r_ingreso" class="uk-container uk-container-xsmall uk-flex uk-flex-column uk-flex-wrap-stretch uk-flex-between@s uk-margin-remove-left@s uk-margin-remove-right@s uk-flex-row@s">
-                <span class="uk-text-danger uk-margin-small-right uk-margin-large-bottom uk-text-large uk-text-bold uk-text-center uk-margin-remove@s">Ingresar</span>
-                <div class="uk-inline uk-margin-small-left@m">
-                    <span class="uk-form-icon" uk-icon="icon: user"></span>
-                    <input id='nom' name='nom' class="uk-input" type="text" placeholder="Nombre" aria-label="Input">
+        <div id="r_pagina">
+            <div>
+                <!-- Contenido pagina -->
+                <div class="uk-divider"></div>
+                <div id="r_ingreso" class="uk-container uk-container-xsmall uk-flex uk-flex-column uk-flex-wrap-stretch uk-flex-between@s uk-margin-remove-left@s uk-margin-remove-right@s uk-flex-row@s">
+                    <span class="uk-text-danger uk-margin-small-right uk-margin-large-bottom uk-text-large uk-text-bold uk-text-center uk-margin-remove@s">Ingresar</span>
+                    <div class="uk-inline uk-margin-small-left@m">
+                        <span class="uk-form-icon" uk-icon="icon: user"></span>
+                        <input id='nom' name='nom' class="uk-input" type="text" placeholder="Nombre" aria-label="Input">
+                    </div>
+                    <div class="uk-inline">
+                        <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                        <input id='pwd' name='pwd' class="uk-input" type="password" placeholder="Password" aria-label="Input">
+                    </div>
+                    <a class="uk-button uk-button-primary uk-margin-small-top uk-margin-bottom-small uk-margin-remove@s" href="javascript:void(0);" onclick="js_haySess(js_resHayLogin);">Enviar</a>
                 </div>
-                <div class="uk-inline">
-                    <span class="uk-form-icon" uk-icon="icon: lock"></span>
-                    <input id='pwd' name='pwd' class="uk-input" type="password" placeholder="Password" aria-label="Input">
-                </div>
-                <a class="uk-button uk-button-primary uk-margin-small-top uk-margin-bottom-small uk-margin-remove@s" href="javascript:void(0);" onclick="js_haySess(js_resHayLogin);">Enviar</a>
+                <hr class="uk-margin-remove-bottom" />
+                <div id="r_infoUSU"></div>
+                <div id="r_formPROD" class="uk-flex-top uk-modal-container" uk-modal></div>
+                <div id="r_infoPROD" class="uk-container uk-container-expand"></div>
+                <div class="uk-divider"></div>
             </div>
-            <hr class="uk-margin-remove-bottom" />
-            <div id="r_infoUSU"></div>
-            <div id="r_formPROD" class="uk-flex-top uk-modal-container" uk-modal></div>
-            <div id="r_infoPROD" class="uk-container uk-container-expand"></div>
-        </div>
-        <div id="r_RESVAL"></div>
-        <!-- Fondo de inicio -->
-        <div id="fondo" uk-height-viewport="expand: true" class="uk-background-cover uk-light uk-flex uk-flex-column" style="background-image: url('img/fondo.jpg');">
-            <div class='uk-margin-auto-vertical'>
-                <h1 class="uk-width-1-2@m uk-text-left uk-heading-medium uk-text-bold uk-margin-xlarge-left">
-                    Manejo <span class="uk-text-stroke">de inventario</span>.
-                </h1>
-                <p class="uk-text-bold uk-text-large uk-margin-xlarge-left">Inicie <span class='uk-text-italic'>sesión</span> para comenzar.</p>
+            <!-- Fondo de inicio -->
+            <div id="fondo" uk-height-viewport="expand: true" class="uk-background-cover uk-light uk-flex uk-flex-column" style="background-image: url('img/fondo.jpg');">
+                <div class='uk-margin-auto-vertical'>
+                    <h1 class="uk-width-1-2@m uk-text-left uk-heading-medium uk-text-bold uk-margin-xlarge-left">
+                        Manejo <span class="uk-text-stroke">de inventario</span>.
+                    </h1>
+                    <p class="uk-text-bold uk-text-large uk-margin-xlarge-left">Inicie <span class='uk-text-italic'>sesión</span> para comenzar.</p>
+                </div>
             </div>
-        </div>
-        <!-- MODALES  -->
-        <div id="vacio" uk-modal>
-            <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
-                <div class="uk-modal-header uk-background-secondary uk-light">
-                    <h2 class="uk-modal-title">Campo vacío.</h2>
+            <div id="r_RESVAL"></div>
+            <!-- MODALES  -->
+            <div id="vacio" uk-modal>
+                <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
+                    <div class="uk-modal-header uk-background-secondary uk-light">
+                        <h2 class="uk-modal-title">Campo vacío.</h2>
+                    </div>
+                    <div class="uk-modal-body">Alguno de los campos está vacío. Por favor, vuelva a intentarlo.</div>
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
                 </div>
-                <div class="uk-modal-body">Alguno de los campos está vacío. Por favor, vuelva a intentarlo.</div>
-                <button class="uk-modal-close-default" type="button" uk-close></button>
             </div>
-        </div>
-        <div id="usuario-incorrecto" uk-modal>
-            <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
-                <div class="uk-modal-header uk-background-secondary uk-light">
-                    <h2 class="uk-modal-title">Usuario incorrecto.</h2>
+            <div id="usuario-incorrecto" uk-modal>
+                <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
+                    <div class="uk-modal-header uk-background-secondary uk-light">
+                        <h2 class="uk-modal-title">Usuario incorrecto.</h2>
+                    </div>
+                    <div class="uk-modal-body">El usuario o la contraseña indicados son erróneos. Por favor, vuelva a intentarlo.</div>
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
                 </div>
-                <div class="uk-modal-body">El usuario o la contraseña indicados son erróneos. Por favor, vuelva a intentarlo.</div>
-                <button class="uk-modal-close-default" type="button" uk-close></button>
             </div>
-        </div>
-        <div id="numerico-incorrecto" uk-modal>
-            <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
-                <div class="uk-modal-header uk-background-secondary uk-light">
-                    <h2 class="uk-modal-title">Valor numérico incorrecto.</h2>
+            <div id="numerico-incorrecto" uk-modal>
+                <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
+                    <div class="uk-modal-header uk-background-secondary uk-light">
+                        <h2 class="uk-modal-title">Valor numérico incorrecto.</h2>
+                    </div>
+                    <div class="uk-modal-body">Es posible que haya ingresado 
+                        un numero negativo. O un precio demasiado alto (mayor a 
+                        $99999.99) o una cantidad en números decimales.</div>
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
                 </div>
-                <div class="uk-modal-body">Es posible que haya ingresado 
-                    un numero negativo. O un precio demasiado alto (mayor a 
-                    $99999.99) o una cantidad en números decimales.</div>
-                <button class="uk-modal-close-default" type="button" uk-close></button>
             </div>
+            <div id="nuevo-inicio" uk-modal>
+                <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div class="uk-modal-header uk-background-secondary uk-light">
+                        <h2 class="uk-modal-title">Nuevo inicio de sesión.</h2>
+                    </div>
+                    <div class="uk-modal-body">Si continúa se cerrará la sesión actual y se intentará abrir una nueva.<br />¿Desea continuar?</div>
+                    <div class="uk-modal-footer uk-text-right uk-background-secondary uk-light">
+                        <a class="uk-button uk-button-default uk-modal-close" href="javascript:void(0);">Cancelar</a>
+                        <a class="uk-button uk-button-primary uk-modal-close" href="javascript:void(0);" onclick="js_valUsu(js_resVal);">Continuar</a>
+                    </div>
+                </div> 
+            </div>
+            <div id="confirmar-borrar" uk-modal>
+                <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div class="uk-modal-header uk-background-secondary uk-light">
+                        <h2 class="uk-modal-title">Eliminar producto.</h2>
+                    </div>
+                    <div class="uk-modal-body">Si continúa se eliminará definitivamente este producto.<br />¿Desea continuar?</div>
+                    <div class="uk-modal-footer uk-text-right uk-background-secondary uk-light">
+                        <a class="uk-button uk-button-default uk-modal-close" href="javascript:void(0);">Cancelar</a>
+                        <a class="uk-button uk-button-primary uk-modal-close" href="javascript:void(0);" onclick="js_FS005();">Continuar</a>
+                    </div>
+                </div> 
+            </div>
+            <input type="hidden" id="in_hi_borrar">
+            <input type="hidden" id="in_hi_modif">
+            <script src="js/index.js"></script>
         </div>
-        <div id="nuevo-inicio" uk-modal>
-            <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
-                <button class="uk-modal-close-default" type="button" uk-close></button>
-                <div class="uk-modal-header uk-background-secondary uk-light">
-                    <h2 class="uk-modal-title">Nuevo inicio de sesión.</h2>
-                </div>
-                <div class="uk-modal-body">Si continúa se cerrará la sesión actual y se intentará abrir una nueva.<br />¿Desea continuar?</div>
-                <div class="uk-modal-footer uk-text-right uk-background-secondary uk-light">
-                    <a class="uk-button uk-button-default uk-modal-close" href="javascript:void(0);">Cancelar</a>
-                    <a class="uk-button uk-button-primary uk-modal-close" href="javascript:void(0);" onclick="js_valUsu(js_resVal);">Continuar</a>
-                </div>
-            </div> 
+         <!-- spinner full width de espera -->
+        <div id="r_espera" class="uk-inline uk-cover
+                uk-width-1-1 uk-height-viewport uk-background-secondary
+                uk-flex uk-flex-center uk-flex-middle">
+            <div uk-spinner="ratio: 5"></div>
         </div>
-        <div id="confirmar-borrar" uk-modal>
-            <div class="uk-modal-dialog uk-margin-auto-vertical uk-background-secondary uk-light">
-                <button class="uk-modal-close-default" type="button" uk-close></button>
-                <div class="uk-modal-header uk-background-secondary uk-light">
-                    <h2 class="uk-modal-title">Eliminar producto.</h2>
-                </div>
-                <div class="uk-modal-body">Si continúa se eliminará definitivamente este producto.<br />¿Desea continuar?</div>
-                <div class="uk-modal-footer uk-text-right uk-background-secondary uk-light">
-                    <a class="uk-button uk-button-default uk-modal-close" href="javascript:void(0);">Cancelar</a>
-                    <a class="uk-button uk-button-primary uk-modal-close" href="javascript:void(0);" onclick="js_FS005();">Continuar</a>
-                </div>
-            </div> 
-        </div>
-        <input type="hidden" id="in_hi_borrar">
-        <input type="hidden" id="in_hi_modif">
-        <script src="js/index.js"></script>
     </body>
 </html>

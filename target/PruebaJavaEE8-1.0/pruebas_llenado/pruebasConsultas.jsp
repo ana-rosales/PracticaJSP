@@ -4,12 +4,12 @@
         java.util.ArrayList,java.sql.Statement,java.sql.ResultSet,
         java.util.Arrays"%>
 <%
-    //establecer conexiones.
+    //establecer conexiones
     List<String> prop_LIST = Arrays.asList(
             "negocio.properties","usuarios.properties");
     List<String> stmts_LIST = Arrays.asList(
-            "select * from o_producto where d_v_catego = 'Miscelaneo';",
-            "select * from c_usuario;");
+            "select c_i_prod,n_v_nombre from o_producto where d_v_catego = 'Miscelaneo' and d_v_tipo = 'Permanente' and d_v_edo = 0;",
+            "select c_i_usu,n_v_nombre from c_usuario where c_i_usu < 7 and d_v_contra = 'data123456';");
     
     Random r_NUM = new Random();
     long time_INI = System.currentTimeMillis(); //tiempo inicio
@@ -17,7 +17,9 @@
     long time_TRANS;
     double time_MIN, time_SECS,time_MILIS;
     
-    //hacer una consulta 
+    int counter_REG;
+    
+    //hacer cien mil consultas 
     for(int i = 1;i<100000;i++){
         System.out.println(i + ".-");
         int r_GEN = r_NUM.nextInt(2);
@@ -33,23 +35,22 @@
             //consulta a sqlite
             if(r_GEN == 1){
                 String usus = "";
-                boolean hayUsu = false;
+                counter_REG = 0;
                 while(rs_STMT.next()){
-                    hayUsu = true;
+                    counter_REG = counter_REG+1;
                 }
-                if(hayUsu){
-                    System.out.println("Consulta usuarios exitosa.");
+                if(counter_REG > 0){
+                    System.out.println("Usuarios encontrados: " + counter_REG);
                 }
+            //consulta a mariadb
             } else {
-            
-                //consulta a mariadb
                 String prods = "";
-                boolean hayProd = false;
+                counter_REG = 0;
                 while(rs_STMT.next()){
-                    hayProd = true;
+                    counter_REG = counter_REG+1;
                 }
-                if(hayProd){
-                    System.out.println("Consulta productos exitosa.");
+                if(counter_REG > 0){
+                    System.out.println("Productos encontrados: " + counter_REG);
                 }
             }
         } catch(SQLException e){

@@ -15,7 +15,7 @@
         ArrayList<Tienda> al_TND = new ArrayList<>();
         
         //conexion
-        String qry_BD = "SELECT c_i_tienda,n_v_nom FROM c_tienda";
+        String qry_BD = "SELECT c_i_tienda,n_v_nom FROM c_tienda;";
         Connection con_POOL = ds_PARAM.getConnection();
         Statement stmt_CON = con_POOL.createStatement();
         ResultSet res_STMT = stmt_CON.executeQuery(qry_BD);

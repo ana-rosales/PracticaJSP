@@ -48,18 +48,29 @@ public class ConectorBD {
                 return pool_BD.get(key_MAP);
             }else{
                 System.out.println("---- "+file_PARAM+" ----");
-                
                 APDataSource ds_MAP = new APDataSource();
                 ds_MAP.setProperties(file_PARAM);
                 ds_MAP.loadDriver();
                 ds_MAP.createConnection();
-                /*ds_MAP.setUsu_DS(usu_PARAM);
-                ds_MAP.setPwd_DS(pwd_PARAM);
-                ds_MAP.setDriver_DS(driver_PARAM);
-                ds_MAP.loadDriver();
-                ds_MAP.setUrl_DS(url_PARAM);
-                ds_MAP.init();*/
                 pool_BD.put(key_MAP, ds_MAP);
+                
+                
+                
+                Thread closeDSCon = new Thread(() -> {
+                    try{
+                        Connection ds_CON = ds_MAP.getConnection();
+                        if (ds_CON != null && !ds_CON.isClosed()) {
+                            ds_MAP.closeConnection();
+                            System.out.println("---- Conexion liberada para "+ file_PARAM + " Status con: " + !ds_CON.isClosed() + " ----");
+                        }
+                    } catch (SQLException sqle){
+                        System.err.println("Error en conexion para "+file_PARAM+": " + sqle);
+                    } catch (IllegalStateException ise){
+                        System.err.println("Error al liberar conexion para "+file_PARAM+": " + ise);
+                    }
+                });
+        
+                Runtime.getRuntime().addShutdownHook(closeDSCon);
                 
                 return ds_MAP; 
             }
@@ -119,7 +130,7 @@ public class ConectorBD {
      * @param idProd_PARAM
      * @param ds_PARAM
      * @return p_RES (objeto con producto).
-     * @throws SQLException 
+     * @throws SQLException
      */
     public static Producto getProducto(int idProd_PARAM, APDataSource ds_PARAM) throws SQLException{
         //producto

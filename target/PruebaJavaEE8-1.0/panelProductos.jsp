@@ -147,32 +147,26 @@
 %>
     <div class="uk-flex uk-flex-center uk-flex-between uk-flex-middle uk-width-1-1">
         <h2 class='uk-text-bold'><span class='uk-text-stroke'>Pro</span>ductos</h2>
-        <a class="uk-button 
 <%
         if(tipo_ORD == 1){
 %>
-            uk-button-primary
+        <a class="uk-button uk-button-primary" href="javascript:void(0);">Ascendente</a>
 <%
         } else {
 %>
-            uk-button-default
+        <a class="uk-button uk-button-default" href="javascript:void(0);" onclick="js_traerProd(1,1);">Ascendente</a>
 <%
         }
-%>
-        " href="javascript:void(0);" onclick="js_traerProd(1,1);">Ascendente</a>
-        <a class="uk-button 
-<%
         if(tipo_ORD == 0){
 %>
-            uk-button-primary
+        <a class="uk-button uk-button-primary" href="javascript:void(0);">Descendente</a>
 <%
         } else {
 %>
-            uk-button-default
+        <a class="uk-button uk-button-default" href="javascript:void(0);" onclick="js_traerProd(1,0);">Descendente</a>
 <%
         }
-%>           
-    " href="javascript:void(0);" onclick="js_traerProd(1,0);">Descendente</a>
+%>
     </div>
     
     <nav>
@@ -239,7 +233,7 @@
                     <td class='uk-padding-small uk-table-expand uk-text-center'><%= prod_USU.getNom() %></td>
                     <td class='uk-padding-small uk-text-center'><%= prod_USU.getCant() %></td>
                     <td class='uk-table-expand uk-text-center'>$<%= prod_USU.getPrecio() %> MXN</td>
-                    <td class='uk-table-expand'><%= prod_USU.getDesc() %></td>
+                    <td class='uk-table-expand uk-text-center'><%= prod_USU.getDesc() %></td>
                     <td class='uk-text-center'><%= prod_USU.getTipo() %></td>
                     <td class='uk-text-center'>
 <%

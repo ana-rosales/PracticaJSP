@@ -175,10 +175,6 @@
                         if(prod_NEW.getId() >= 0){
                             System.out.println("exito registro");
                         }
-                        System.out.println(
-                            "Id del nuevo producto: " + prod_NEW.getId());
-                        System.out.println(
-                            "Se seleccionaron tiendas: " + !tnd_ARR.isEmpty());
                         
                         //crear el detalle para las c_i_tienda en tnd_ARR
                         if(!tnd_ARR.isEmpty()){

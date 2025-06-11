@@ -6,7 +6,7 @@
     public int validaUsu(String usu_PARAM, String contra_PARAM, APDataSource ds_PARAM){
 
         int ok = -1;
-        String qry_STMT = "select * from c_usuario;";
+        String qry_STMT = "select * from c_usuario where n_v_nombre = '" + usu_PARAM + "' and d_v_contra = '" + contra_PARAM + "';";
 
         /**
          * Obtener una conexion del pool del DataSource.
